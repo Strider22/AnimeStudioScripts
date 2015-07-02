@@ -21,3 +21,18 @@ Here are some links to Anime Studio Scripts and Lua that you might find useful
 - [Lua users org](http://lua-users.org/wiki/LuaTutorial)
 - [animators forum](http://animatorsforum.com)
 
+Organization
+============
+The files are organized in the standard Anime Studio script file structure. I do have a utility directory that holds scripts that may be used by the main scripts. 
+
+Getting the Scripts
+===================
+You can just click on the Download ZIP link (to the right) to get the latest set of scripts. I also will create 
+[releases(https://github.com/Strider22/AnimeStudioScripts/releases) from time to time to 
+demark milestones of code development. The first release is available. 
+
+Releases
+========
+0.1.0
+Initial release. Debug and Audio classes. Has routines for auto generating lipsync strictly from audio. 
+Includes scripts that are just for learning purposes.
