@@ -3,7 +3,7 @@ ScriptName = "msEx4ReadLines"
 msEx4ReadLines = {}
 
 function msEx4ReadLines:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/ReadLines/ReadLines=Ex4 Read Lines..."))
+	return(MOHO.Localize("/Scripts/Menu/ReadLines/ReadLines=4) Read Lines..."))
 end
 
 -- **************************************************

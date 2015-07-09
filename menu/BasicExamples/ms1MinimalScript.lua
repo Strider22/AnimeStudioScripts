@@ -2,7 +2,7 @@ ScriptName = "msMinimalScript"
 msMinimalScript = {}
 
 function msMinimalScript:UILabel()
-	return "Ex1 Minimal Script..."
+	return "1) Minimal Script..."
 end
 
 -- **************************************************

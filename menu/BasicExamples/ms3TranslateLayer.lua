@@ -11,7 +11,7 @@ ScriptName = "msEx3TranslateLayer"
 msEx3TranslateLayer = {}
 
 function msEx3TranslateLayer:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/TranslateLayer/TranslateLayer=Ex3 Translate Layer"))
+	return(MOHO.Localize("/Scripts/Menu/TranslateLayer/TranslateLayer=3) Translate Layer"))
 end
 
 

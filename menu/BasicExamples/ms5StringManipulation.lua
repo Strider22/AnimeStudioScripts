@@ -3,7 +3,7 @@ ScriptName = "msEx5StringManipulation"
 msEx5StringManipulation = {}
 
 function msEx5StringManipulation:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/StringManipulation/StringManipulation=Ex5 String Manipulation..."))
+	return(MOHO.Localize("/Scripts/Menu/StringManipulation/StringManipulation=5) String Manipulation..."))
 end
 
 -- Split a string into words. Print out each word

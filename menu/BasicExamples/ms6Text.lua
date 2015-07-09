@@ -3,7 +3,7 @@ ScriptName = "msEx6Text"
 msEx6Text = {}
 
 function msEx6Text:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/Text/Text=Ex6 Text"))
+	return(MOHO.Localize("/Scripts/Menu/Text/Text=6) Text Layers"))
 end
 
 -- **************************************************

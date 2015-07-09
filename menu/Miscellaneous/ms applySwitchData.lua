@@ -68,8 +68,7 @@ function MS_ApplySwitchData:Run(moho)
 	--	return
 	--end
 
-    local switchLayer = moho:LayerAsSwitch(moho.layer)
-    local switch = switchLayer:SwitchValues()
+    local switch = moho:LayerAsSwitch(moho.layer).SwitchValues()
 	
 	-- print("Number of switch Layers " .. switchLayer:CountLayers())
 	-- MS_ApplySwitchData:PrintLayerNames(switchLayer)
