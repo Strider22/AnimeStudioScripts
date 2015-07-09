@@ -6,14 +6,14 @@ function msFBFTest:UILabel()
 	return(MOHO.Localize("/Scripts/Menu/FBFTest/FBFTest=FBFTest"))
 end
 
+function msFBFTest:IsEnabled(moho)
+    return (moho.layer:LayerType() == MOHO.LT_SWITCH)
+end
 
 -- return a list of keys associated with a switch layer
 -- the list is 0 indexed
 function msFBFTest:GetKeyList(moho)
     local list = {}
-	if moho.layer:LayerType() == MOHO.LT_SWITCH then
-		-- the animChannel is the set of key values, the animation, for the
-		-- animationType associated with the layer
 		local animChannel = (moho:LayerAsSwitch(moho.layer)):SwitchValues()
 		local numKeys = animChannel:CountKeys()
 		-- print("numKeys " .. numKeys)
@@ -21,9 +21,6 @@ function msFBFTest:GetKeyList(moho)
 		--    print("id " .. id) 
 			list[id] = {frame = animChannel:GetKeyWhen(id), value = animChannel:GetValueByID(id)}
 		end
-	else 
-		print ("Layer is not a switch layer")
-	end
 	return list
 end
 
@@ -36,10 +33,6 @@ function msFBFTest:PrintKeyList(keyList)
 	end
 end
 
-
-function msFBFTest:MoveLayerToBottom(moho)
-	moho:PlaceLayerInGroup(moho:LayerAsGroup(moho.layer):Layer(0), moho.layer, false)
-end
 
 function msFBFTest:GetLayerList(moho)
 	local layerCount = moho.layer:CountLayers()
@@ -59,35 +52,120 @@ function msFBFTest:PrintLayerList(layerList)
 	end
 end
 
+function msFBFTest:PrintList(list)
+    for k,v in ipairs(list) do
+        print("key is " .. k .. " value " .. v)
+    end
+end
 
+function msFBFTest:CreateSet (list)
+	local set = {}
+	for _, l in ipairs(list) do set[l] = true end
+	return set
+end
 
-function msFBFTest:RenameSwitchLayersByID(layer)
-	if layer:LayerType() == MOHO.LT_SWITCH then
-		local layerCount = moho.layer:CountLayers()
-		for i=0,layerCount-1,1 do
-			moho.layer:Layer(i):SetName("Layer ".. i)
+--Run through the key frames and add each unique
+--layers to the list, in the order of their appearance
+function msFBFTest:CreateUniqueKeyOrderList(moho)
+	local animChannel = (moho:LayerAsSwitch(moho.layer)):SwitchValues()
+	local numKeys = animChannel:CountKeys()
+	local uniqueKeyOrderList = {}
+	local orderSet = self:CreateSet(uniqueKeyOrderList)
+
+	for id = 0, numKeys-1 do
+		local value = animChannel:GetValueByID(id)
+		if not orderSet[value] then
+			table.insert(uniqueKeyOrderList,value)
 		end
-	else 
-		print ("The selected layer is not a switch layer")
+	end
+	return uniqueKeyOrderList
+end
+
+function msFBFTest:ReorderSwitchLayers(moho, uniqueKeyOrderList)
+	local group = moho:LayerAsGroup(moho.layer)
+
+	--Order switch layers that are found in key frames
+    -- based on their order in the key frames
+	for _,v in ipairs(uniqueKeyOrderList) do
+		moho:PlaceLayerInGroup(group:LayerByName(v), moho.layer, true)
+	end
+
+	-- Move layers, not found in keys, to top
+    while group:Layer(0) ~= uniqueKeyOrderList[0] do
+		moho:PlaceLayerInGroup(group:Layer(0), moho.layer, true)
 	end
 end
 
-	
-	
-	
+local nameMap = {}
+function msFBFTest:RenameLayers(moho)
+	local layerCount = moho.layer:CountLayers()
+	for i=0,layerCount-1,1 do
+		nameMap[moho.layer:Layer(i):Name()] = "Layer " .. i
+		moho.layer:Layer(i):SetName("Layer ".. i)
+	end
+end
+
+-- return a list of keys associated with a switch layer
+-- the list is 0 indexed
+function msFBFTest:RenameKeys(moho)
+	local animChannel = (moho:LayerAsSwitch(moho.layer)):SwitchValues()
+	local numKeys = animChannel:CountKeys()
+	-- print("numKeys " .. numKeys)
+	for id = 0, numKeys-1 do
+		--    print("id " .. id)
+		animChannel:SetValueByID(id, nameMap[animChannel:GetValueByID(id)])
+	end
+end
+
+
 -- **************************************************
 -- The guts of this script
 -- **************************************************
 
 function msFBFTest:Run(moho)
---	self:ListSwitchLayers(moho.layer)
-
+    local uniqueKeyOrderList = self:CreateUniqueKeyOrderList(moho)
+    self:PrintList(uniqueKeyOrderList)
 	-- local keyList = self:GetKeyList(moho)
 	-- self:PrintKeyList(keyList)
 	-- local layerList = self:GetLayerList(moho)
 	-- self:PrintLayerList(layerList)
 	
 	-- self:MoveTopLayerToBottom(moho)
-    self:GroupMoveBottomLayerToTop(moho)
+    --self:GroupMoveBottomLayerToTop(moho)
 end
 
+--local switchLayers = {"feet", "legs", "body", "shoulders", "head"}
+--local keyFrames = {"shoulders", "body", "shoulders", "legs"}
+--
+--for k,v in ipairs(switchLayers) do
+--	print("layer " .. k .. " value " .. v)
+--end
+--for k,v in ipairs(keyFrames) do
+--	print("keyframe " .. k .. " value " .. v)
+--end
+--
+--local i = 1
+--local renameMap = {}
+--for k,v in ipairs(switchLayers) do
+--	switchLayers[k] = "Layer " .. i
+--	renameMap[v] = "Layer " .. i
+--	i =i+1
+--end
+--
+--print("renamemap")
+--for k,v in pairs(renameMap) do
+--	print("layer " .. k .. " value " .. v)
+--end
+--
+--for k,v in pairs(keyFrames) do
+--	keyFrames[k] = renameMap[v]
+--end
+--
+--
+--print("After renaming ")
+--for k,v in ipairs(switchLayers) do
+--	print("layer " .. k .. " value " .. v)
+--end
+--for k,v in ipairs(keyFrames) do
+--	print("keyframe " .. k .. " value " .. v)
+--end
