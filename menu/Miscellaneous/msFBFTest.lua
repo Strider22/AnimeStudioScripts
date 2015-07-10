@@ -58,10 +58,11 @@ function msFBFTest:PrintList(list)
     end
 end
 
-function msFBFTest:CreateSet (list)
-	local set = {}
-	for _, l in ipairs(list) do set[l] = true end
-	return set
+function msFBFTest:InList (list, value)
+    for _,v in ipairs(list) do
+        if v == value then return true end
+    end
+	return false
 end
 
 --Run through the key frames and add each unique
@@ -70,11 +71,10 @@ function msFBFTest:CreateUniqueKeyOrderList(moho)
 	local animChannel = (moho:LayerAsSwitch(moho.layer)):SwitchValues()
 	local numKeys = animChannel:CountKeys()
 	local uniqueKeyOrderList = {}
-	local orderSet = self:CreateSet(uniqueKeyOrderList)
 
 	for id = 0, numKeys-1 do
 		local value = animChannel:GetValueByID(id)
-		if not orderSet[value] then
+		if not self:InList(uniqueKeyOrderList, value) then
 			table.insert(uniqueKeyOrderList,value)
 		end
 	end
@@ -83,7 +83,10 @@ end
 
 function msFBFTest:ReorderSwitchLayers(moho, uniqueKeyOrderList)
 	local group = moho:LayerAsGroup(moho.layer)
-
+	-- use layerCount to prevent accidental infinite loop 
+	-- if something unexpected happens
+    local layerCount = moho.layer:CountLayers()
+	
 	--Order switch layers that are found in key frames
     -- based on their order in the key frames
 	for _,v in ipairs(uniqueKeyOrderList) do
@@ -91,18 +94,25 @@ function msFBFTest:ReorderSwitchLayers(moho, uniqueKeyOrderList)
 	end
 
 	-- Move layers, not found in keys, to top
-    while group:Layer(0) ~= uniqueKeyOrderList[0] do
+	local i = 0
+    while group:Layer(0):Name() ~= uniqueKeyOrderList[1] do
 		moho:PlaceLayerInGroup(group:Layer(0), moho.layer, true)
+		-- make sure we don't run into an infinite loop 
+		i = i + 1
+		if i == layerCount then break end
 	end
 end
 
 local nameMap = {}
 function msFBFTest:RenameLayers(moho)
 	local layerCount = moho.layer:CountLayers()
+	local group = moho:LayerAsGroup(moho.layer)
+	-- print("moho.layer:Layer(i):Name()" .. group:Layer(0):Name())
 	for i=0,layerCount-1,1 do
-		nameMap[moho.layer:Layer(i):Name()] = "Layer " .. i
-		moho.layer:Layer(i):SetName("Layer ".. i)
+		nameMap[group:Layer(i):Name()] = "Layer " .. i
+		group:Layer(i):SetName("Layer ".. i)
 	end
+	
 end
 
 -- return a list of keys associated with a switch layer
@@ -110,9 +120,9 @@ end
 function msFBFTest:RenameKeys(moho)
 	local animChannel = (moho:LayerAsSwitch(moho.layer)):SwitchValues()
 	local numKeys = animChannel:CountKeys()
-	-- print("numKeys " .. numKeys)
+	print("numKeys " .. numKeys)
 	for id = 0, numKeys-1 do
-		--    print("id " .. id)
+		   print("id " .. id)
 		animChannel:SetValueByID(id, nameMap[animChannel:GetValueByID(id)])
 	end
 end
@@ -124,48 +134,9 @@ end
 
 function msFBFTest:Run(moho)
     local uniqueKeyOrderList = self:CreateUniqueKeyOrderList(moho)
-    self:PrintList(uniqueKeyOrderList)
-	-- local keyList = self:GetKeyList(moho)
-	-- self:PrintKeyList(keyList)
-	-- local layerList = self:GetLayerList(moho)
-	-- self:PrintLayerList(layerList)
-	
-	-- self:MoveTopLayerToBottom(moho)
-    --self:GroupMoveBottomLayerToTop(moho)
+    -- self:PrintList(uniqueKeyOrderList)
+	self:ReorderSwitchLayers(moho, uniqueKeyOrderList)
+	self:RenameLayers(moho)
+	self:PrintList(nameMap)
+	-- self:RenameKeys(moho)
 end
-
---local switchLayers = {"feet", "legs", "body", "shoulders", "head"}
---local keyFrames = {"shoulders", "body", "shoulders", "legs"}
---
---for k,v in ipairs(switchLayers) do
---	print("layer " .. k .. " value " .. v)
---end
---for k,v in ipairs(keyFrames) do
---	print("keyframe " .. k .. " value " .. v)
---end
---
---local i = 1
---local renameMap = {}
---for k,v in ipairs(switchLayers) do
---	switchLayers[k] = "Layer " .. i
---	renameMap[v] = "Layer " .. i
---	i =i+1
---end
---
---print("renamemap")
---for k,v in pairs(renameMap) do
---	print("layer " .. k .. " value " .. v)
---end
---
---for k,v in pairs(keyFrames) do
---	keyFrames[k] = renameMap[v]
---end
---
---
---print("After renaming ")
---for k,v in ipairs(switchLayers) do
---	print("layer " .. k .. " value " .. v)
---end
---for k,v in ipairs(keyFrames) do
---	print("keyframe " .. k .. " value " .. v)
---end
