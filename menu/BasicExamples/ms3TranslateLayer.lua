@@ -1,15 +1,29 @@
--- **************************************************
--- Provide Moho with the name of this script object
--- **************************************************
-
+-- Moves the selected layer 1 unit in the x direction at frame 5
 ScriptName = "msEx3TranslateLayer"
-
--- **************************************************
--- General information about this script
--- **************************************************
-
 msEx3TranslateLayer = {}
 
+-- **************************************************
+-- This information is displayed in help | About scripts ... 
+-- **************************************************
+function msEx3TranslateLayer:Name()
+	return "3) Translate layer"
+end
+
+function msEx3TranslateLayer:Version()
+	return "1.0"
+end
+
+function msEx3TranslateLayer:Description()
+	return MOHO.Localize("/Scripts/Menu/Ex4TranslateLayer/Description=Moves the selected layer 1 unit in the x direction at frame 5.")
+end
+
+function msEx3TranslateLayer:Creator()
+	return "Mitchel Soltys"
+end
+
+-- **************************************************
+-- This is the Script label in the GUI
+-- **************************************************
 function msEx3TranslateLayer:UILabel()
 	return(MOHO.Localize("/Scripts/Menu/TranslateLayer/TranslateLayer=3) Translate Layer"))
 end
@@ -20,7 +34,7 @@ end
 -- **************************************************
 
 function msEx3TranslateLayer:Run(moho)
-	print("Moving the layer 1 in x at frame 5")
+	print("Moving the layer 1 in x direction at frame 5")
 	
 	-- Get layer location at frame 0
 	local layerLocation = LM.Vector3:new_local()

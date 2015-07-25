@@ -1,7 +1,28 @@
-
 ScriptName = "msEx5StringManipulation"
 msEx5StringManipulation = {}
 
+-- **************************************************
+-- This information is displayed in help | About scripts ... 
+-- **************************************************
+function msEx5StringManipulation:Name()
+	return "5) String Manipulation..."
+end
+
+function msEx5StringManipulation:Version()
+	return "1.0"
+end
+
+function msEx5StringManipulation:Description()
+	return MOHO.Localize("/Scripts/Menu/Ex5StringManipulation/Description=Splits a string into words and prints it.")
+end
+
+function msEx5StringManipulation:Creator()
+	return "Mitchel Soltys"
+end
+
+-- **************************************************
+-- This is the Script label in the GUI
+-- **************************************************
 function msEx5StringManipulation:UILabel()
 	return(MOHO.Localize("/Scripts/Menu/StringManipulation/StringManipulation=5) String Manipulation..."))
 end

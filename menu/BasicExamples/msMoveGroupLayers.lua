@@ -4,6 +4,28 @@
 ScriptName = "msMoveGroupLayers"
 msMoveGroupLayers = {}
 
+-- **************************************************
+-- This information is displayed in help | About scripts ... 
+-- **************************************************
+function msMoveGroupLayers:Name()
+	return "Move Group Layers"
+end
+
+function msMoveGroupLayers:Version()
+	return "1.0"
+end
+
+function msMoveGroupLayers:Description()
+	return MOHO.Localize("/Scripts/Menu/MoveGroupLayers/Description=Demonstrates how to move layers within a group.")
+end
+
+function msMoveGroupLayers:Creator()
+	return "Mitchel Soltys"
+end
+
+-- **************************************************
+-- This is the Script label in the GUI
+-- **************************************************
 function msMoveGroupLayers:UILabel()
 	-- The label is localized for multiple language support
 	return(MOHO.Localize("/Scripts/Menu/MoveGroupLayers/MoveGroupLayers=Move Group Layers"))

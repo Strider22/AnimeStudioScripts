@@ -1,6 +1,29 @@
+-- Lists layer types and prints out the type of the currently selected layer
 ScriptName = "msEx2LayerType"
 msEx2LayerType = {}
 
+-- **************************************************
+-- This information is displayed in help | About scripts ... 
+-- **************************************************
+function msEx2LayerType:Name()
+	return "2) Layer type"
+end
+
+function msEx2LayerType:Version()
+	return "1.0"
+end
+
+function msEx2LayerType:Description()
+	return MOHO.Localize("/Scripts/Menu/Ex2LayerType/Description=Lists layer types and prints out the type of the currently selected layer.")
+end
+
+function msEx2LayerType:Creator()
+	return "Mitchel Soltys"
+end
+
+-- **************************************************
+-- This is the Script label in the GUI
+-- **************************************************
 function msEx2LayerType:UILabel()
 	-- The label is localized for multiple language support
 	return(MOHO.Localize("/Scripts/Menu/layerType/layerType=2) Layer type"))

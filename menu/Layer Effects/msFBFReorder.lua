@@ -11,6 +11,28 @@
 ScriptName = "msFBFReorder"
 msFBFReorder = {}
 
+-- **************************************************
+-- This information is displayed in help | About scripts ... 
+-- **************************************************
+function msFBFReorder:Name()
+	return "Reorder FBF Layers"
+end
+
+function msFBFReorder:Version()
+	return "1.0"
+end
+
+function msFBFReorder:Description()
+	return MOHO.Localize("/Scripts/Menu/MinimalScript/Description=Frame by frame layers will be reordered in a sequential order, increasing  from bottom to top. ")
+end
+
+function msFBFReorder:Creator()
+	return "Mitchel Soltys"
+end
+
+-- **************************************************
+-- This is the Script label in the GUI
+-- **************************************************
 function msFBFReorder:UILabel()
 	-- The label is localized for multiple language support
 	return(MOHO.Localize("/Scripts/Menu/FBFReorder/FBFReorder=Reorder FBF Layers"))
