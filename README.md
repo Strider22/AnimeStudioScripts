@@ -8,6 +8,18 @@ promise any fixes.
 Having said all that, I do hope the repository can be helpful to you. The [Anime Studio Community](http://www.lostmarble.com/forum/) is really great
 and I've been helped a lot by examples that others have shared, so feel free to use the code here for your own purposes. 
 
+# Files
+=====
+## menu
+### BasicExamples
+* msEx1MinimalScript.lua - simplest getting started 
+* msEx2LayerType.lua
+* msEx3TranslateLayer.lua
+* msEx4ReadLines.lua
+* msEx5StringManipulation.lua
+* msEx6Text.lua
+* msKineticTypography.lua
+
 Links 
 =====
 Here are some links to Anime Studio Scripts and Lua that you might find useful
