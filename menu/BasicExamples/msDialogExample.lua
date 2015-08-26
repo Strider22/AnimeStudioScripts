@@ -1,34 +1,34 @@
-ScriptName = "msDialog"
+ScriptName = "msDialogExample"
 
 -- **************************************************
 -- General information about this script
 -- **************************************************
 
-msDialog = {}
+msDialogExample = {}
 
-msDialog.BASE_STR = 2530
+msDialogExample.BASE_STR = 2530
 
 
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msDialog:Name()
+function msDialogExample:Name()
 	return "Dialog"
 end
 
-function msDialog:Version()
+function msDialogExample:Version()
 	return "6.0"
 end
 
-function msDialog:Description()
+function msDialogExample:Description()
 	return MOHO.Localize("/Scripts/Menu/Dialog/Description=Simple example of using a dialog.")
 end
 
-function msDialog:Creator()
+function msDialogExample:Creator()
 	return "Mitchel Soltys"
 end
 
-function msDialog:UILabel()
+function msDialogExample:UILabel()
 	return(MOHO.Localize("/Scripts/Menu/Dialog/LayerDialog=Dialog"))
 end
 
@@ -36,70 +36,70 @@ end
 -- Recurring values
 -- **************************************************
 
-msDialog.audioLayer = 0
-msDialog.interpolationStyle = 1
-msDialog.AI = .3
-msDialog.E = .1
-msDialog.etc = .05
-msDialog.stepSize = 1
-msDialog.startFrame = 0
-msDialog.endFrame = 0
-msDialog.minMaxTolerancePercent = .05
-msDialog.minMaxTolerance = 0
-msDialog.lastMouth = 0
-msDialog.lastMouthAmplitude = 0
-msDialog.switch = nil
-msDialog.frameAdjust = 0
-msDialog.cancel = false
-msDialog.restAtEnd = true
-msDialog.minimizeMouthSwitches = true
-msDialog.MBPlowest = false
+msDialogExample.audioLayer = 0
+msDialogExample.interpolationStyle = 1
+msDialogExample.AI = .3
+msDialogExample.E = .1
+msDialogExample.etc = .05
+msDialogExample.stepSize = 1
+msDialogExample.startFrame = 0
+msDialogExample.endFrame = 0
+msDialogExample.minMaxTolerancePercent = .05
+msDialogExample.minMaxTolerance = 0
+msDialogExample.lastMouth = 0
+msDialogExample.lastMouthAmplitude = 0
+msDialogExample.switch = nil
+msDialogExample.frameAdjust = 0
+msDialogExample.cancel = false
+msDialogExample.restAtEnd = true
+msDialogExample.minimizeMouthSwitches = true
+msDialogExample.MBPlowest = false
 
 -- **************************************************
 -- Dialog dialog
 -- **************************************************
 
-local msDialogDialog = {}
+local msDialogExampleDialog = {}
 
-function msDialogDialog:new(moho)
-	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/Dialog/Title=Dialog"), msDialogDialog)
+function msDialogExampleDialog:new(moho)
+	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/Dialog/Title=Dialog"), msDialogExampleDialog)
 	local layout = dialog:GetLayout()
 
 	msEditSpan:Init(dialog,Dialog)
-	msDialog:Init("/Scripts/Menu/Dialog/", dialog, layout)
+	msDialogExample:Init("/Scripts/Menu/Dialog/", dialog, layout)
 
 	dialog.moho = moho
 
 
-	msDialog:AddText("help", "See Dialog constructor for explanations")
+	msDialogExample:AddText("help", "See Dialog constructor for explanations")
 	
 	layout:PushH(LM.GUI.ALIGN_CENTER)
 		-- add labels
 		layout:PushV()
 			-- Select the audio layer to use
-			msDialog:AddText("AudioLayer", "Audio layer:")
+			msDialogExample:AddText("AudioLayer", "Audio layer:")
 			-- How much wiggle do you ignore? 
-			msDialog:AddText("Tolerance", "Tolerance Percentage (.005 .05)")
+			msDialogExample:AddText("Tolerance", "Tolerance Percentage (.005 .05)")
 			-- Which style of interpolation will you use
-			msDialog:AddText("InterpStyle", "Interpolation Style:")
+			msDialogExample:AddText("InterpStyle", "Interpolation Style:")
 			-- Values for determining what the actual mouth values will be
 			-- used to be difficult to determine for multiple voices, because
 			-- the value was not based on local of the span being edited. So 
 			-- if a soft voice was mixed with a loud voice, the soft voice would
 			-- not have any mouth values
-			msDialog:AddText("AI", "AI level (.03 .3)")
-			msDialog:AddText("E", "E level (.01 .1)")
-			msDialog:AddText("etc", "etc level (.005 .05)")
+			msDialogExample:AddText("AI", "AI level (.03 .3)")
+			msDialogExample:AddText("E", "E level (.01 .1)")
+			msDialogExample:AddText("etc", "etc level (.005 .05)")
 			-- step size. Should almost always be one. 
-			msDialog:AddText("StepSize", "Step size")
+			msDialogExample:AddText("StepSize", "Step size")
 		layout:Pop()
 		-- add controls to the right
 		layout:PushV()
-			dialog.menu = msDialog:AudioDropdown(moho, "SelectAudioLayer", 
-				"Select audio layer",msDialog.audioLayer)
-			dialog.minMaxTolerancePercent = msDialog:AddTextControl(0, "0.0000", 0,
+			dialog.menu = msDialogExample:AudioDropdown(moho, "SelectAudioLayer", 
+				"Select audio layer",msDialogExample.audioLayer)
+			dialog.minMaxTolerancePercent = msDialogExample:AddTextControl(0, "0.0000", 0,
 				LM.GUI.FIELD_FLOAT)
-			dialog.interpMenu = LM.GUI.Menu(msDialog:Localize("InterpStyle",
+			dialog.interpMenu = LM.GUI.Menu(msDialogExample:Localize("InterpStyle",
 				"Interpolation Style:"))
 			--	- Min Max big change -	put switch values only at min max values
 			--			calculated by big change. Actual value is based on 
@@ -130,13 +130,13 @@ function msDialogDialog:new(moho)
 			dialog.interpMenu:AddItem("Big Change 2", 0, MOHO.MSG_BASE + 8)
 			--	- TrueMinMax -	
 			dialog.interpMenu:AddItem("True min max", 0, MOHO.MSG_BASE + 9)
-			dialog.interpMenu:SetChecked(MOHO.MSG_BASE + msDialog.interpolationStyle, true)
-			msDialog:MakePopup(dialog.interpMenu)
+			dialog.interpMenu:SetChecked(MOHO.MSG_BASE + msDialogExample.interpolationStyle, true)
+			msDialogExample:MakePopup(dialog.interpMenu)
 
-			dialog.AI = msDialog:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
-			dialog.E = msDialog:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
-			dialog.etc = msDialog:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
-			dialog.stepSize = msDialog:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+			dialog.AI = msDialogExample:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
+			dialog.E = msDialogExample:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
+			dialog.etc = msDialogExample:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
+			dialog.stepSize = msDialogExample:AddTextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
 		layout:Pop()
 	layout:Pop()
 	
@@ -144,10 +144,10 @@ function msDialogDialog:new(moho)
 	msEditSpan:AddComponents(layout)
 
 	-- Should the rest mouth be put at the end of the audio section
-	dialog.restAtEnd = msDialog:Control(LM.GUI.CheckBox, "Rest", "Rest at end")
-	dialog.minimizeMouthSwitches = msDialog:Control(LM.GUI.CheckBox, "Minimize", "Minimize Dialog")
-	dialog.MBPlowest = msDialog:Control(LM.GUI.CheckBox, "MBPlowest", "Is MBP lowest")
-	dialog.debug = msDialog:Control(LM.GUI.CheckBox, "Debug","Debug")
+	dialog.restAtEnd = msDialogExample:Control(LM.GUI.CheckBox, "Rest", "Rest at end")
+	dialog.minimizeMouthSwitches = msDialogExample:Control(LM.GUI.CheckBox, "Minimize", "Minimize Dialog")
+	dialog.MBPlowest = msDialogExample:Control(LM.GUI.CheckBox, "MBPlowest", "Is MBP lowest")
+	dialog.debug = msDialogExample:Control(LM.GUI.CheckBox, "Debug","Debug")
 
 	return dialog
 end
@@ -155,25 +155,25 @@ end
 -- **************************************************
 -- Set dialog values
 -- **************************************************
-function msDialogDialog:UpdateWidgets()
-	self.AI:SetValue(msDialog.AI)
-	self.E:SetValue(msDialog.E)
-	self.etc:SetValue(msDialog.etc)
-	self.stepSize:SetValue(msDialog.stepSize)
-	self.minMaxTolerancePercent:SetValue(msDialog.minMaxTolerancePercent)
-	self.restAtEnd:SetValue(msDialog.restAtEnd)
+function msDialogExampleDialog:UpdateWidgets()
+	self.AI:SetValue(msDialogExample.AI)
+	self.E:SetValue(msDialogExample.E)
+	self.etc:SetValue(msDialogExample.etc)
+	self.stepSize:SetValue(msDialogExample.stepSize)
+	self.minMaxTolerancePercent:SetValue(msDialogExample.minMaxTolerancePercent)
+	self.restAtEnd:SetValue(msDialogExample.restAtEnd)
 	self.startFrame:SetValue(msAudioLayer.startFrame)
 	self.endFrame:SetValue(msAudioLayer.endFrame)
 	self.useAllFrames:SetValue(msAudioLayer.useAllFrames)
-	self.minimizeMouthSwitches:SetValue(msDialog.minimizeMouthSwitches)
-	self.MBPlowest:SetValue(msDialog.MBPlowest)
+	self.minimizeMouthSwitches:SetValue(msDialogExample.minimizeMouthSwitches)
+	self.MBPlowest:SetValue(msDialogExample.MBPlowest)
 	self.debug:SetValue(msHelper.debug)
 end
 
 -- **************************************************
 -- Validate user choices
 -- **************************************************
-function msDialogDialog:OnValidate()
+function msDialogExampleDialog:OnValidate()
 	local b = true
 	if (not self:Validate(self.AI, -10, 10)) then
 		b = false
@@ -196,20 +196,20 @@ end
 -- **************************************************
 -- Set values from dialog
 -- **************************************************
-function msDialogDialog:OnOK()
-	msDialog.audioLayer = self.menu:FirstChecked()
-	msDialog.interpolationStyle = self.interpMenu:FirstChecked()
-	msDialog.AI = self.AI:FloatValue()
-	msDialog.E = self.E:FloatValue()
-	msDialog.etc = self.etc:FloatValue()
-	msDialog.stepSize = self.stepSize:FloatValue()
-	msDialog.minMaxTolerancePercent = self.minMaxTolerancePercent:FloatValue()
-	msDialog.restAtEnd = self.restAtEnd:Value()
-	msDialog.minimizeMouthSwitches = self.minimizeMouthSwitches:Value()
-	msDialog.MBPlowest = self.MBPlowest:Value()
+function msDialogExampleDialog:OnOK()
+	msDialogExample.audioLayer = self.menu:FirstChecked()
+	msDialogExample.interpolationStyle = self.interpMenu:FirstChecked()
+	msDialogExample.AI = self.AI:FloatValue()
+	msDialogExample.E = self.E:FloatValue()
+	msDialogExample.etc = self.etc:FloatValue()
+	msDialogExample.stepSize = self.stepSize:FloatValue()
+	msDialogExample.minMaxTolerancePercent = self.minMaxTolerancePercent:FloatValue()
+	msDialogExample.restAtEnd = self.restAtEnd:Value()
+	msDialogExample.minimizeMouthSwitches = self.minimizeMouthSwitches:Value()
+	msDialogExample.MBPlowest = self.MBPlowest:Value()
 	msHelper.debug = self.debug:Value()
 	
-	if msDialog.stepSize ~= 1 then
+	if msDialogExample.stepSize ~= 1 then
 		print("Step size should be 1. I may soon deprecate this control.")
 	end
 	msAudioLayer:Init(self.moho,
@@ -225,7 +225,7 @@ end
 -- **************************************************
 -- The guts of this script
 -- **************************************************
-function msDialog:Run(moho)
-	msDialog:Display(moho, msDialogDialog)
-	if(msDialog.cancelled) then return end
+function msDialogExample:Run(moho)
+	msDialogExample:Display(moho, msDialogExampleDialog)
+	if(msDialogExample.cancelled) then return end
 end
