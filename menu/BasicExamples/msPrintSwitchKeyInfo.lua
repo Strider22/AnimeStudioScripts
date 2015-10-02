@@ -1,29 +1,29 @@
-ScriptName = "msDisplaySwitchKeyInfo"
-msDisplaySwitchKeyInfo = {}
+ScriptName = "msPrintSwitchKeyInfo"
+msPrintSwitchKeyInfo = {}
 
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msDisplaySwitchKeyInfo:Name()
-	return "Display Switch Key Info"
+function msPrintSwitchKeyInfo:Name()
+	return "Print Switch Key Info for the selected layer"
 end
 
-function msDisplaySwitchKeyInfo:Version()
+function msPrintSwitchKeyInfo:Version()
 	return "1.0"
 end
 
-function msDisplaySwitchKeyInfo:Description()
-	return MOHO.Localize("/Scripts/Menu/MoveGroupLayers/Description=Demonstrates how to move layers within a group.")
+function msPrintSwitchKeyInfo:Description()
+	return MOHO.Localize("/Scripts/Menu/MoveGroupLayers/Description=Prints Switch Key Info for the selected layer.")
 end
 
-function msDisplaySwitchKeyInfo:Creator()
+function msPrintSwitchKeyInfo:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msDisplaySwitchKeyInfo:UILabel()
+function msPrintSwitchKeyInfo:UILabel()
 	-- The label is localized for multiple language support
 	return(MOHO.Localize("/Scripts/Menu/SwitchKeyInfo/SwitchKeyInfo=Display Switch Key Info"))
 end
@@ -33,7 +33,7 @@ end
 -- The guts of this script
 -- **************************************************
 
-function msDisplaySwitchKeyInfo:Run(moho)
+function msPrintSwitchKeyInfo:Run(moho)
 	if moho.layer:LayerType() == MOHO.LT_SWITCH then
 		-- the animChannel is the set of key values, the animation, for the
 		-- animationType associated with the layer
