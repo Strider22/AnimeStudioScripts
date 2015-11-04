@@ -95,18 +95,24 @@ function msLipSync:DeleteKeys()
 end
 
 function msLipSync:CalculateStepSize(phonemeList)
-    
-	self.stepSize = math.floor((self.endFrame - self.startFrame)/numKeys(phonemeList))
+  local numVowels, numConsonants = Phonemes:countPhonemes(phonemeList)
+	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels)
+  if self.stepSize < 1 then self.stepSize = 1 end
 end
 
 function msLipSync:SetMouthSwitchKeys(phonemeList)
 	local frame = self.startFrame
 	for k,v in ipairs(phonemeList) do
-		if (v ~= self.lastMouth) then
-			self.switch:SetValue(frame, v)
-			self.lastMouth = v
+    local mouth = v[1]
+		if (mouth ~= self.lastMouth) then
+			self.switch:SetValue(math.floor(frame), mouth)
+			self.lastMouth = mouth
 		end
-		frame = frame + self.stepSize
+    if v[2] == "c" then 
+  		frame = frame + 1
+    else
+      frame = frame + self.stepSize
+    end
 	end
 end
 
@@ -115,134 +121,6 @@ function msLipSync:IsEnabled(moho)
 		return false
 	end
 	return true
-end
-
-
-local phrase = "If God is good and created the universe why is there such trouble in the world"
-
-
-
-local textToPhoneme = {igh="AI", ee="E", ea="E", oo="U", oa="O" }
-local test={a=5}
-
---set default case to etc. It will naturally include
--- letters a
--- phonemes ai e etc mbp o u qw fv l th
-function readLine(file)
-    local f = io.open(file,"r")
-    local line = f:read("*l")
-    f:close()
-    return line;
-end
-
-local angleLookup = {m=5, r=7, z=6, e=22, o=12,l=15, a=35, w=21, u=25, t=36, f=-23 }
-function printAngle(line)
-    for i=1,line:len(),1 do
-        print(angleLookup[line:sub(i,i)])
-    end
-end
-
--- ignore e at the end of a word
--- long if only one consonant between
--- y at end i
-
-
-local phonemeMap = {}
-phonemeMap[1] = {
-    a = "AI",
-    b = "MBP",
-    c = "etc",
-    d = "etc",
-    e = "E",
-    f = "FV",
-    g = "etc",
-    h = "etc",
-    i = "E",
-    j = "etc",
-    k = "etc",
-    l = "l",
-    m = "MBP",
-    n = "etc",
-    o = "O",
-    p = "MBP",
-    q = "QW",
-    r = "etc",
-    s = "etc",
-    t = "etc",
-    u = "U",
-    v = "FV",
-    w = "QW",
-    x = "etc",
-    y = "etc",
-    z = "etc"
-}
-phonemeMap[2] = { oo = "U", oa = "O", ee = "E", ea = "E", ch = "etc", th = "etc", gh = "FV", ou = "U", wh="QW"}
-phonemeMap[3] = { igh = "AI" }
-phonemeMap[4] = { eigh = "AI" }
-
-phonemeSpecials = {wha={"QW","U"}, out={"AI","O","etc"}, }
-
-function findPhonemeInList(phrase, len, stringList)
-    return stringList[phrase:sub(1,len)]
-end
-
-
-
-function findNextPhoneme(word)
-    word = string.lower(word)
-    local wordLen = word:len()
-    if wordLen < 1 then return nil, nil end
-    local len = 4
-    if wordLen < len then len = wordLen end
-    for i=len,1,-1 do
-      local phrase, remainder = splitStringByCount(word,i)
-      local phoneme = findPhonemeInList(phrase,i,phonemeMap[i])
-      if phoneme ~= nil then 
-        return phoneme, remainder
-      end
-    end
-    -- if the phoneme is not found, assume it's punctuation and return etc
-    print("word " .. word .. " not found")
-    return "etc", remainder
-end
-
-function splitStringByCount(myString,count)
-    return myString:sub(1,count), myString:sub(count+1)
-end
-
-function printPhonemes(phrase)
-    local answer
-    local strLen = phrase.len()
-end
-
-function dump(table)
-    for k,v in pairs(table) do
-        print("key " .. k .. " value " .. v)
-    end
-end
-
-function addPhonemesInWordToList(word, phonemeList)
-  local phoneme
-  while (word ~= "") and (word ~=nil) do
-    phoneme, word = findNextPhoneme(word)
-    table.insert(phonemeList, phoneme)
-    --print("phoneme " .. phoneme .. " remainder " .. word)
-    --print("phoneme " .. phoneme)
-  end
-end
-
-function buildPhonemeListFromPhrase(phrase,phonemeList)
-    for word in (string.gmatch(phrase, "%S+")) do
-        addPhonemesInWordToList(word,phonemeList)
-    end
-end
-
-function numKeys(list)
-	numItems = 0
-	for k,v in pairs(list) do
-		numItems = numItems + 1
-	end
-	return numItems
 end
 
 function msLipSync:Run(moho)
@@ -260,7 +138,7 @@ function msLipSync:Run(moho)
 	
 
 	local phonemeList = {}
-    buildPhonemeListFromPhrase("If God is good", phonemeList)
+  buildPhonemeListFromPhrase("if god iz gud", phonemeList)
 	self:CalculateStepSize(phonemeList)
 	self:SetMouthSwitchKeys(phonemeList)
 	if msLipSync.cancel then
