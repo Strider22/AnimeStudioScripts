@@ -32,8 +32,8 @@ end
 -- Recurring values
 -- **************************************************
 msLipSync.stepSize = 1
-msLipSync.startFrame = 18
-msLipSync.endFrame = 40
+msLipSync.startFrame = 15
+msLipSync.endFrame = 70
 msLipSync.lastMouth = 0
 msLipSync.switch = nil
 msLipSync.cancel = false
@@ -56,7 +56,21 @@ function msLipSyncDialog:new(moho)
 
 	msDialog:AddText("help", "See Dialog constructor for explanations")
 	
+	layout:PushH(LM.GUI.ALIGN_CENTER)
+		-- add labels
+		layout:PushV()
+			msDialog:AddText("Start Frame", "Start Frame:")
+			msDialog:AddText("End Frame", "End Frame:")
+		layout:Pop()
+		-- add controls to the right
+		layout:PushV()
+			dialog.startFrame = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
+			dialog.endFrame = msDialog:AddTextControl(0, "100.0000", 0, LM.GUI.FIELD_FLOAT)
+		layout:Pop()
+	layout:Pop()
+	
 	-- Should the rest mouth be put at the end of the audio section
+	dialog.phonetic = msDialog:Control(LM.GUI.CheckBox, "Phonetic","Phonetic spelling")
 	dialog.restAtEnd = msDialog:Control(LM.GUI.CheckBox, "Rest", "Rest at end")
 	dialog.debug = msDialog:Control(LM.GUI.CheckBox, "Debug","Debug")
 
@@ -68,8 +82,9 @@ end
 -- **************************************************
 function msLipSyncDialog:UpdateWidgets()
 	self.restAtEnd:SetValue(msLipSync.restAtEnd)
-	-- self.startFrame:SetValue(msLipSync.startFrame)
-	-- self.endFrame:SetValue(msLipSync.endFrame)
+	self.startFrame:SetValue(msLipSync.startFrame)
+	self.endFrame:SetValue(msLipSync.endFrame)
+	self.phonetic:SetValue(msLipSync.phonetic)
 	self.debug:SetValue(msHelper.debug)
 end
 
@@ -82,7 +97,10 @@ end
 -- **************************************************
 function msLipSyncDialog:OnOK()
 	msLipSync.restAtEnd = self.restAtEnd:Value()
+  msLipSync.phonetic = self.phonetic:Value()
 	msHelper.debug = self.debug:Value()
+	msLipSync.startFrame =	self.startFrame:FloatValue()
+  msLipSync.endFrame = self.endFrame:FloatValue()
 end
 
 -- **************************************************
@@ -95,9 +113,13 @@ function msLipSync:DeleteKeys()
 end
 
 function msLipSync:CalculateStepSize(phonemeList)
+  --Phonemes:dump(phonemeList)
   local numVowels, numConsonants = Phonemes:countPhonemes(phonemeList)
-	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels)
+	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels
   if self.stepSize < 1 then self.stepSize = 1 end
+  msHelper:Debug("Frames " .. self.startFrame .. " " .. self.endFrame)
+  msHelper:Debug("Letters v, c, ss" .. numVowels .. " " .. numConsonants .. " " .. self.stepSize)
+
 end
 
 function msLipSync:SetMouthSwitchKeys(phonemeList)
@@ -105,7 +127,7 @@ function msLipSync:SetMouthSwitchKeys(phonemeList)
 	for k,v in ipairs(phonemeList) do
     local mouth = v[1]
 		if (mouth ~= self.lastMouth) then
-			self.switch:SetValue(math.floor(frame), mouth)
+			self.switch:SetValue(math.floor(frame), string.upper(mouth))
 			self.lastMouth = mouth
 		end
     if v[2] == "c" then 
@@ -138,7 +160,8 @@ function msLipSync:Run(moho)
 	
 
 	local phonemeList = {}
-  buildPhonemeListFromPhrase("if god iz gud", phonemeList)
+  Phonemes:buildPhonemeListFromPhrase("the quick brown fox jumped over the lazy dog", phonemeList)
+--  Phonemes:buildPhonemeListFromPhrase("if god iz", phonemeList)
 	self:CalculateStepSize(phonemeList)
 	self:SetMouthSwitchKeys(phonemeList)
 	if msLipSync.cancel then
@@ -146,7 +169,7 @@ function msLipSync:Run(moho)
 	end
 	
 	
---	if self.restAtEnd then
---	   self.switch:SetValue(msAudioLayer.endFrame,"rest")
---	end
+	if self.restAtEnd then
+	   self.switch:SetValue(msAudioLayer.endFrame,"rest")
+	end
 end
