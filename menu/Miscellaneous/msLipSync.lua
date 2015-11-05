@@ -32,8 +32,9 @@ end
 -- Recurring values
 -- **************************************************
 msLipSync.stepSize = 1
-msLipSync.startFrame = 15
-msLipSync.endFrame = 70
+msLipSync.startFrame = 1
+msLipSync.endFrame = 50
+msLipSync.text = ""
 msLipSync.lastMouth = 0
 msLipSync.switch = nil
 msLipSync.cancel = false
@@ -61,11 +62,13 @@ function msLipSyncDialog:new(moho)
 		layout:PushV()
 			msDialog:AddText("Start Frame", "Start Frame:")
 			msDialog:AddText("End Frame", "End Frame:")
+			msDialog:AddText("Text", "Text String:")
 		layout:Pop()
 		-- add controls to the right
 		layout:PushV()
 			dialog.startFrame = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
 			dialog.endFrame = msDialog:AddTextControl(0, "100.0000", 0, LM.GUI.FIELD_FLOAT)
+      dialog.text = msDialog:AddTextControl(0,"What are you saying", 0, LM.GUI.FIELD_TEXT)
 		layout:Pop()
 	layout:Pop()
 	
@@ -84,6 +87,7 @@ function msLipSyncDialog:UpdateWidgets()
 	self.restAtEnd:SetValue(msLipSync.restAtEnd)
 	self.startFrame:SetValue(msLipSync.startFrame)
 	self.endFrame:SetValue(msLipSync.endFrame)
+	self.text:SetValue(msLipSync.text)
 	self.phonetic:SetValue(msLipSync.phonetic)
 	self.debug:SetValue(msHelper.debug)
 end
@@ -101,6 +105,7 @@ function msLipSyncDialog:OnOK()
 	msHelper.debug = self.debug:Value()
 	msLipSync.startFrame =	self.startFrame:FloatValue()
   msLipSync.endFrame = self.endFrame:FloatValue()
+  msLipSync.text = self.text:Value()
 end
 
 -- **************************************************
@@ -118,7 +123,7 @@ function msLipSync:CalculateStepSize(phonemeList)
 	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels
   if self.stepSize < 1 then self.stepSize = 1 end
   msHelper:Debug("Frames " .. self.startFrame .. " " .. self.endFrame)
-  msHelper:Debug("Letters v, c, ss" .. numVowels .. " " .. numConsonants .. " " .. self.stepSize)
+  msHelper:Debug("Letters v, c, ss " .. numVowels .. " " .. numConsonants .. " " .. self.stepSize)
 
 end
 
@@ -127,7 +132,7 @@ function msLipSync:SetMouthSwitchKeys(phonemeList)
 	for k,v in ipairs(phonemeList) do
     local mouth = v[1]
 		if (mouth ~= self.lastMouth) then
-			self.switch:SetValue(math.floor(frame), string.upper(mouth))
+			self.switch:SetValue(math.floor(frame), mouth)
 			self.lastMouth = mouth
 		end
     if v[2] == "c" then 
@@ -160,8 +165,8 @@ function msLipSync:Run(moho)
 	
 
 	local phonemeList = {}
-  Phonemes:buildPhonemeListFromPhrase("the quick brown fox jumped over the lazy dog", phonemeList)
---  Phonemes:buildPhonemeListFromPhrase("if god iz", phonemeList)
+  msHelper:Debug("text " .. self.text)
+  Phonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
 	self:CalculateStepSize(phonemeList)
 	self:SetMouthSwitchKeys(phonemeList)
 	if msLipSync.cancel then
