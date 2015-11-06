@@ -21,7 +21,6 @@ Phonemes = {}
  -- c - only one frame
  -- v - multiple frames
  ]]
-Phonemes.lastPhoneme = { "etc", "c" }
 Phonemes.phonemeMap = {
     a = { "AI", "v" },
     b = { "MBP", "c" },
@@ -39,7 +38,7 @@ Phonemes.phonemeMap = {
     n = { "etc", "v" },
     o = { "O", "v" },
     p = { "MBP", "c" },
-    q = { "WQ", "v" },
+    q = { "WQ", "c" },
     r = { "etc", "v" },
     s = { "etc", "v" },
     t = { "etc", "c" },
@@ -82,20 +81,14 @@ function Phonemes:findNextPhoneme(word)
     if wordLen < len then len = wordLen end
     for i = len, 1, -1 do
         local phrase, remainder = self:splitStringByCount(word, i)
-        if (i == 1) and string.match(phrase:sub(1, 1), '[1-9]') then
-            phoneme = self.lastPhoneme
-            return phoneme, remainder, tonumber(phrase:sub(1,1))
-        end
-
         local phoneme = self:findPhonemeInList(phrase, i, self.phonemeMap)
         if phoneme ~= nil then
-            self.lastPhoneme = phoneme
-            return phoneme, remainder, 1
+            return phoneme, remainder
         end
     end
     -- if the phoneme is not found, assume it's punctuation and return etc
     print("word " .. word .. " not found")
-    return "etc", remainder, 1
+    return "etc", remainder
 end
 
 function Phonemes:splitStringByCount(myString, count)
@@ -115,10 +108,8 @@ end
 function Phonemes:addPhonemesInWordToList(word, phonemeList)
     local phoneme
     while (word ~= "") and (word ~= nil) do
-        phoneme, word, count = self:findNextPhoneme(word)
-        for i=1,count,1 do
-            table.insert(phonemeList, phoneme)
-        end
+        phoneme, word = self:findNextPhoneme(word)
+        table.insert(phonemeList, phoneme)
         --print("phoneme " .. phoneme .. " remainder " .. word)
         --print("phoneme " .. phoneme)
     end
