@@ -38,7 +38,6 @@ msLipSync.text = ""
 msLipSync.lastMouth = 0
 msLipSync.switch = nil
 msLipSync.cancel = false
-msLipSync.restAtEnd = true
 
 -- **************************************************
 -- LipSync dialog
@@ -74,7 +73,6 @@ function msLipSyncDialog:new(moho)
 	
 	-- Should the rest mouth be put at the end of the audio section
 	dialog.phonetic = msDialog:Control(LM.GUI.CheckBox, "Phonetic","Phonetic spelling")
-	dialog.restAtEnd = msDialog:Control(LM.GUI.CheckBox, "Rest", "Rest at end")
 	dialog.debug = msDialog:Control(LM.GUI.CheckBox, "Debug","Debug")
 
 	return dialog
@@ -84,7 +82,6 @@ end
 -- Set dialog values
 -- **************************************************
 function msLipSyncDialog:UpdateWidgets()
-	self.restAtEnd:SetValue(msLipSync.restAtEnd)
 	self.startFrame:SetValue(msLipSync.startFrame)
 	self.endFrame:SetValue(msLipSync.endFrame)
 	self.text:SetValue(msLipSync.text)
@@ -100,12 +97,11 @@ end
 -- Set values from dialog
 -- **************************************************
 function msLipSyncDialog:OnOK()
-	msLipSync.restAtEnd = self.restAtEnd:Value()
-  msLipSync.phonetic = self.phonetic:Value()
-	msHelper.debug = self.debug:Value()
 	msLipSync.startFrame =	self.startFrame:FloatValue()
   msLipSync.endFrame = self.endFrame:FloatValue()
-  msLipSync.text = self.text:Value()
+    msLipSync.text = self.text:Value()
+    msLipSync.phonetic = self.phonetic:Value()
+	msHelper.debug = self.debug:Value()
 end
 
 -- **************************************************
@@ -165,16 +161,8 @@ function msLipSync:Run(moho)
 	
 
 	local phonemeList = {}
-  msHelper:Debug("text " .. self.text)
-  Phonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
+	msHelper:Debug("text " .. self.text)
+	Phonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
 	self:CalculateStepSize(phonemeList)
 	self:SetMouthSwitchKeys(phonemeList)
-	if msLipSync.cancel then
-		return
-	end
-	
-	
-	if self.restAtEnd then
-	   self.switch:SetValue(msAudioLayer.endFrame,"rest")
-	end
 end

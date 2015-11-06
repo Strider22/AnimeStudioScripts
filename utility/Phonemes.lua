@@ -64,7 +64,8 @@ Phonemes.phonemeMap = {
     I = { "AI", "v" },
     U = { "O", "v" },
     O = { "O", "v" },
-    R = { "O", "v" }
+    R = { "O", "v" },
+	["-"] = { "rest","c"}
 }
 
 Phonemes.phonemeSpecials = { wha = { { "WQ", "v" }, { "U", "v" } }, out = { { "AI", "v" }, { "O", "v" }, { "etc", "c" } } }
