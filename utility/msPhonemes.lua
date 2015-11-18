@@ -14,14 +14,14 @@
 -- IO library http://www.lua.org/pil/21.html
 
 
-Phonemes = {}
+msPhonemes = {}
 
 --[[First element shows mouth position
 --second element shows length of time
  -- c - only one frame
  -- v - multiple frames
  ]]
-Phonemes.phonemeMap = {
+msPhonemes.phonemeMap = {
     a = { "AI", "v" },
     b = { "MBP", "c" },
     c = { "etc", "c" },
@@ -68,24 +68,24 @@ Phonemes.phonemeMap = {
 	["-"] = { "rest","c"}
 }
 
-Phonemes.phonemeSpecials = { wha = { { "WQ", "v" }, { "U", "v" } }, out = { { "AI", "v" }, { "O", "v" }, { "etc", "c" } } }
+msPhonemes.phonemeSpecials = { wha = { { "WQ", "v" }, { "U", "v" } }, out = { { "AI", "v" }, { "O", "v" }, { "etc", "c" } } }
 
-Phonemes.boneMaps = {}
+msPhonemes.boneMaps = {}
 
-function Phonemes:addBoneMap(name)
+function msPhonemes:addBoneMap(name)
 	self.boneMaps[name] = {}
 end
 
-function Phonemes:getWord(line)
+function msPhonemes:getWord(line)
 
 end
 
-function Phonemes:getBoneNames(name,line)
+function msPhonemes:getBoneNames(name,line)
 	self.boneMaps[name].openCloseName, line = self:splitStringByWord(line)
 	self.boneMaps[name].squashStretchName, line = self:splitStringByWord(line)
 end
 
-function Phonemes:addPhonemeBones(name,line)
+function msPhonemes:addPhonemeBones(name,line)
     local bones = {}
 	local phoneme = ""
 	phoneme, line = self:splitStringByWord(line)
@@ -95,7 +95,7 @@ function Phonemes:addPhonemeBones(name,line)
 	self.boneMaps[name].phonemeToBonesMap[phoneme] = bones
 end
 
-function Phonemes:BuildPhonemeMap()
+function msPhonemes:BuildPhonemeMap()
 	local f = io.open(".\\lipSync.txt", "r")
 	if (f == nil) then
 		return
@@ -116,12 +116,12 @@ end
 
 
 
-function Phonemes:findPhonemeInList(phrase, len, stringList)
+function msPhonemes:findPhonemeInList(phrase, len, stringList)
     return stringList[phrase:sub(1, len)]
 end
 
 
-function Phonemes:findNextPhoneme(word)
+function msPhonemes:findNextPhoneme(word)
     local wordLen = word:len()
     if wordLen < 1 then return nil, nil end
     local len = 4
@@ -138,17 +138,17 @@ function Phonemes:findNextPhoneme(word)
     return "etc", remainder
 end
 
-function Phonemes:splitStringByWord(myString)
+function msPhonemes:splitStringByWord(myString)
 	local s, e = string.find(myString, "%S+")
 	
     return string.sub(myString,s,e), string.sub(myString, count + 1)
 end
 
-function Phonemes:splitStringByCount(myString, count)
+function msPhonemes:splitStringByCount(myString, count)
     return myString:sub(1, count), myString:sub(count + 1)
 end
 
-function Phonemes:dump(table)
+function msPhonemes:dump(table)
     for k, v in pairs(table) do
         if (type(v) == "table") then
             self:dump(v)
@@ -158,7 +158,7 @@ function Phonemes:dump(table)
     end
 end
 
-function Phonemes:addPhonemesInWordToList(word, phonemeList)
+function msPhonemes:addPhonemesInWordToList(word, phonemeList)
     local phoneme
     while (word ~= "") and (word ~= nil) do
         phoneme, word = self:findNextPhoneme(word)
@@ -168,13 +168,13 @@ function Phonemes:addPhonemesInWordToList(word, phonemeList)
     end
 end
 
-function Phonemes:buildPhonemeListFromPhrase(phrase, phonemeList)
+function msPhonemes:buildPhonemeListFromPhrase(phrase, phonemeList)
     for word in (string.gmatch(phrase, "%S+")) do
         self:addPhonemesInWordToList(word, phonemeList)
     end
 end
 
-function Phonemes:countPhonemes(phonemeList)
+function msPhonemes:countPhonemes(phonemeList)
     local numConsonants = 0
     local numVowels = 0
     for k, v in pairs(phonemeList) do

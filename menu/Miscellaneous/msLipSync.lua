@@ -130,8 +130,8 @@ function msLipSync:DeleteKeys()
 end
 
 function msLipSync:CalculateStepSize(phonemeList)
-  --Phonemes:dump(phonemeList)
-  local numVowels, numConsonants = Phonemes:countPhonemes(phonemeList)
+  --msPhonemes:dump(phonemeList)
+  local numVowels, numConsonants = msPhonemes:countPhonemes(phonemeList)
 	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels
   if self.stepSize < 1 then self.stepSize = 1 end
   msHelper:Debug("Frames " .. self.startFrame .. " " .. self.endFrame)
@@ -233,7 +233,7 @@ function msLipSync:Run(moho)
 	-- self:DeleteKeys()
 	local phonemeList = {}
 	msHelper:Debug("text " .. self.text)
-	Phonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
+	msPhonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
 	self:CalculateStepSize(phonemeList)
 	
 	if (moho.layer:LayerType() == MOHO.LT_SWITCH) then 
