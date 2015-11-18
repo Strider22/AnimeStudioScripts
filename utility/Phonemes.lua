@@ -62,13 +62,59 @@ Phonemes.phonemeMap = {
     A = { "AI", "v" },
     E = { "E", "v" },
     I = { "AI", "v" },
-    U = { "O", "v" },
+    U = { "U", "v" },
     O = { "O", "v" },
     R = { "O", "v" },
 	["-"] = { "rest","c"}
 }
 
 Phonemes.phonemeSpecials = { wha = { { "WQ", "v" }, { "U", "v" } }, out = { { "AI", "v" }, { "O", "v" }, { "etc", "c" } } }
+
+Phonemes.boneMaps = {}
+
+function Phonemes:addBoneMap(name)
+	self.boneMaps[name] = {}
+end
+
+function Phonemes:getWord(line)
+
+end
+
+function Phonemes:getBoneNames(name,line)
+	self.boneMaps[name].openCloseName, line = self:splitStringByWord(line)
+	self.boneMaps[name].squashStretchName, line = self:splitStringByWord(line)
+end
+
+function Phonemes:addPhonemeBones(name,line)
+    local bones = {}
+	local phoneme = ""
+	phoneme, line = self:splitStringByWord(line)
+	bones[self.boneMaps[name].openCloseName], line = self:splitStringByWord(line)
+	bones[self.boneMaps[name].squashStretchName], line = self:splitStringByWord(line)
+	local phonemeBones = {}
+	self.boneMaps[name].phonemeToBonesMap[phoneme] = bones
+end
+
+function Phonemes:BuildPhonemeMap()
+	local f = io.open(".\\lipSync.txt", "r")
+	if (f == nil) then
+		return
+	end
+
+	--Read the first line of the file
+	local line = f:read()
+	self:getBoneNames(line)
+	line = f:read()
+	while (line ~= nil) do
+		self:addPhonemeBones(line)
+		line = f:read()
+	end
+	f:close()
+
+	
+end
+
+
 
 function Phonemes:findPhonemeInList(phrase, len, stringList)
     return stringList[phrase:sub(1, len)]
@@ -90,6 +136,12 @@ function Phonemes:findNextPhoneme(word)
     -- if the phoneme is not found, assume it's punctuation and return etc
     print("word " .. word .. " not found")
     return "etc", remainder
+end
+
+function Phonemes:splitStringByWord(myString)
+	local s, e = string.find(myString, "%S+")
+	
+    return string.sub(myString,s,e), string.sub(myString, count + 1)
 end
 
 function Phonemes:splitStringByCount(myString, count)
