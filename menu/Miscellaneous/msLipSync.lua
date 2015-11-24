@@ -35,13 +35,14 @@ msLipSync.stepSize = 1
 msLipSync.startFrame = 1
 msLipSync.endFrame = 50
 msLipSync.text = ""
-msLipSync.lastMouth = 0
 msLipSync.switch = nil
 msLipSync.skel = nil
 msLipSync.cancel = false
 msLipSync.phonemeToBonesMap = {}
+msLipSync.phonetic = true
 msLipSync.openCloseName = "Open/Close"
 msLipSync.squashStretchName = "Squash/Stretch"
+msLipSync.firstChecked = 0
 
 -- **************************************************
 -- LipSync dialog
@@ -50,27 +51,37 @@ msLipSync.squashStretchName = "Squash/Stretch"
 local msLipSyncDialog = {}
 
 function msLipSyncDialog:new(moho)
+	msHelper:Debug("in sync dialog ")
+
 	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/LipSync/Title=Lip Sync"), msLipSyncDialog)
 	local layout = dialog:GetLayout()
 
-	msEditSpan:Init(dialog,LipSync)
+	--the place where things should be
+	--print("userappdir " .. moho:UserAppDir())
 	msDialog:Init("/Scripts/Menu/LipSync/", dialog, layout)
 
 	dialog.moho = moho
-	msLipSync:BuildPhonemeMap()
+    msLipSync.myPhonemes = msPhonemes.new()
+	msLipSync.myPhonemes.BuildPhonemeMap(moho:AppDir().."\\scripts\\utility\\lipSync.txt")
+	--myPhonemes.dump(myPhonemes.boneMaps)
+	msHelper:Debug("after buildPhonememap  ")
+
+    dialog.isBoneLayer = false
 	if (msLipSync.moho.layer:LayerType() == MOHO.LT_BONE) then
 		dialog.syncMenu = LM.GUI.Menu(msDialog:Localize("SyncStyle",
 				"LipSync Style:"))
-	--for i = 0, moho:CountAudioLayers() - 1 do
-		-- local audioLayer = moho:GetAudioLayer(i)
-		dialog.syncMenu:AddItem("Scarlett", 0, MOHO.MSG_BASE)
-		dialog.syncMenu:AddItem("Switch", 0, MOHO.MSG_BASE + 1)
-		dialog.syncMenu:SetChecked(MOHO.MSG_BASE, true)
+		dialog.isBoneLayer = true
+	  --msPhonemes:dump(msPhonemes.boneMaps)
+		local numMaps = 0
+		for k,v in pairs(msLipSync.myPhonemes.boneMaps) do
+			if numMaps == 0 then msLipSync.myPhonemes.setBoneMap(k) end
+			dialog.syncMenu:AddItem(k, 0, MOHO.MSG_BASE + numMaps)
+			numMaps = numMaps + 1
+		end
 		msDialog:MakePopup(dialog.syncMenu)
-			-- end
-	-- d.menu:SetChecked(MOHO.MSG_BASE, true)
-	end
-
+     end		
+	
+--print("first checked label " .. dialog.syncMenu:FirstCheckedLabel())
 	layout:PushH(LM.GUI.ALIGN_CENTER)
 		-- add labels
 		layout:PushV()
@@ -103,6 +114,10 @@ function msLipSyncDialog:UpdateWidgets()
 	self.text:SetValue(msLipSync.text)
 	self.phonetic:SetValue(msLipSync.phonetic)
 	self.debug:SetValue(msHelper.debug)
+	if self.isBoneLayer then 
+		self.syncMenu:SetChecked(MOHO.MSG_BASE + msLipSync.firstChecked, true)
+		msLipSync.firstChecked = self.syncMenu:FirstChecked()
+	end
 end
 
 -- **************************************************
@@ -113,11 +128,24 @@ end
 -- Set values from dialog
 -- **************************************************
 function msLipSyncDialog:OnOK()
+	msHelper:Debug("in sync OnOK  ")
+
 	msLipSync.startFrame =	self.startFrame:FloatValue()
-  msLipSync.endFrame = self.endFrame:FloatValue()
+    msLipSync.endFrame = self.endFrame:FloatValue()
     msLipSync.text = self.text:Value()
     msLipSync.phonetic = self.phonetic:Value()
 	msHelper.debug = self.debug:Value()
+	if self.isBoneLayer then 
+	    msHelper:Debug("this is a Bonelayer ")
+		msHelper:Debug("in lipsyncdialog:OnOK - bone map  " .. self.syncMenu:FirstCheckedLabel())
+		msLipSync.boneMapName = self.syncMenu:FirstCheckedLabel()
+		msLipSync.myPhonemes.setBoneMap(msLipSync.boneMapName)
+		msLipSync.firstChecked = self.syncMenu:FirstChecked()
+	end
+	msHelper:Debug("leaving sync OnOK  ")
+
+	--msLipSync.boneMap = msPhonemes.boneMaps[1]
+	--msPhonemes.dump(msLipSync.boneMap)
 end
 
 -- **************************************************
@@ -130,8 +158,7 @@ function msLipSync:DeleteKeys()
 end
 
 function msLipSync:CalculateStepSize(phonemeList)
-  --msPhonemes:dump(phonemeList)
-  local numVowels, numConsonants = msPhonemes:countPhonemes(phonemeList)
+  local numVowels, numConsonants = self.myPhonemes.countPhonemes(phonemeList)
 	self.stepSize = (self.endFrame - self.startFrame - numConsonants)/numVowels
   if self.stepSize < 1 then self.stepSize = 1 end
   msHelper:Debug("Frames " .. self.startFrame .. " " .. self.endFrame)
@@ -149,66 +176,43 @@ function msLipSync:dump(table)
     end
 end
 
-function msLipSync:getBoneNames(line)
-	local s, e = string.find(line, "%S+")
-	self.openCloseName = string.sub(line,s,e)
-	line = string.sub(line,e+2)
-	s,e = string.find(line, "%S+")
-	self.squashStretchName = string.sub(line,s,e)
-end
-
-function msLipSync:addPhonemeBones(line)
-    local bones = {}
-	local s, e = string.find(line, "%a+")
-	local phoneme = string.sub(line,s,e)
-	line = string.sub(line,e+2)
-	s,e = string.find(line, "%d+")
-	bones[self.openCloseName] = string.sub(line,s,e)
-	line = string.sub(line,e+2)
-	s,e = string.find(line, "%d+")
-	bones[self.squashStretchName] = string.sub(line,s,e)
-	local phonemeBones = {}
-	self.phonemeToBonesMap[phoneme] = bones
-end
-
-function msLipSync:BuildPhonemeMap()
-	local f = io.open(".\\lipSync.txt", "r")
-	if (f == nil) then
-		return
-	end
-
-	--Read the first line of the file
-	local line = f:read()
-	line = f:read()
-	self:getBoneNames(line)
-	line = f:read()
-	while (line ~= nil) do
-		self:addPhonemeBones(line)
-		line = f:read()
-	end
-	f:close()
-
-	
-end
 
 function msLipSync:SetMouthValues(phonemeList,type)
 	local frame = self.startFrame
+	local numBones = 0
+	local lastMouth = 0
+	if type ~= "switch" then
+		numBones = self.myPhonemes.numBones()
+		msHelper:Debug("numBones " .. numBones)
+	end
+    msHelper:Debug("in setMouthValues type is " .. type)
 	for k,v in ipairs(phonemeList) do
-    local mouth = v[1]
-		if (mouth ~= self.lastMouth) then
+		local mouth = v[1]
+		msHelper:Debug("mouth is  " .. mouth)
+		msHelper:Debug("frame " .. frame)
+		if (mouth ~= lastMouth) then
 			if(type == "switch") then
 				self.switch:SetValue(math.floor(frame), mouth)
 			else
-				self.skel:BoneByName(self.openCloseName).fAnimAngle:SetValue(frame,math.rad(PhonemeBoneMaps.scarlet[mouth][1]))
-				self.skel:BoneByName(self.squashStretchName).fAnimAngle:SetValue(frame,math.rad(PhonemeBoneMaps.scarlet[mouth][2]))
+				for i = 1, numBones, 1 do
+					msHelper:Debug("bone name " .. self.myPhonemes.boneName(i))
+					msHelper:Debug("bone angle " .. self.myPhonemes.boneAngle(i,mouth))
+					local bone = self.skel:BoneByName(self.myPhonemes.boneName(i))
+					if (bone == nil) then 
+						print("The bone '" .. self.myPhonemes.boneName(i) .. "' is not found.")
+						print("Make sure " .. msLipSync.boneMapName .. " is the correct bone map to use.")
+						return
+					end
+					bone.fAnimAngle:SetValue(frame,self.myPhonemes.boneAngleRad(i, mouth))
+				end
 			end
-			self.lastMouth = mouth
+			lastMouth = mouth
 		end
-    if v[2] == "c" then 
-  		frame = frame + 1
-    else
-      frame = frame + self.stepSize
-    end
+		if v[2] == "c" then 
+			frame = frame + 1
+		else
+		  frame = frame + self.stepSize
+		end
 	end
 end
 
@@ -221,20 +225,22 @@ end
 
 function msLipSync:Run(moho)
 	self.moho = moho
+	msHelper:Debug("in run before dialog  ")
 	msDialog:Display(moho, msLipSyncDialog)
+	msHelper:Debug("in run after dialog  ")
 	if(msDialog.cancelled) then return end
+
 
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 
---	self:dump(self.phonemeToBonesMap)
---self:dump(PhonemeBoneMaps.scarlet)
 	
 	-- self:DeleteKeys()
 	local phonemeList = {}
-	msHelper:Debug("text " .. self.text)
-	msPhonemes:buildPhonemeListFromPhrase(self.text, phonemeList)
+	msHelper:Debug("phrase to speak " .. self.text)
+	self.myPhonemes.buildPhonemeListFromPhrase(self.text, phonemeList, self.phonetic)
 	self:CalculateStepSize(phonemeList)
+    msHelper:Debug("after size calculation")
 	
 	if (moho.layer:LayerType() == MOHO.LT_SWITCH) then 
 		local switchLayer = moho:LayerAsSwitch(moho.layer)
