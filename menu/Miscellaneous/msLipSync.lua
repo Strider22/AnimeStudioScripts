@@ -225,10 +225,15 @@ end
 
 function msLipSync:Run(moho)
 	self.moho = moho
+	msDialog.cancelled = false
 	msHelper:Debug("in run before dialog  ")
 	msDialog:Display(moho, msLipSyncDialog)
 	msHelper:Debug("in run after dialog  ")
-	if(msDialog.cancelled) then return end
+	
+	if(msDialog.cancelled) then 
+		msHelper:Debug("msDialog is cancelled" )
+		return 
+	end
 
 
 	moho.document:PrepUndo(moho.layer)
