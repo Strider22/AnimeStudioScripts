@@ -28,6 +28,7 @@ end
 
 msCopyAnimation.srcLayer = ""
 msCopyAnimation.frameOffset = 1
+msCopyAnimation.randomize = false
 
 msCopyAnimationDialog = {}
 
@@ -39,6 +40,8 @@ function msCopyAnimationDialog:new(moho)
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("Select Base Animation Layer"),LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("Frame Offset"),LM.GUI.ALIGN_LEFT)
+		    d.randomize = LM.GUI.CheckBox("Randomize Offsets")
+			l:AddChild(d.randomize)
 		l:Pop()
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			d.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
@@ -58,11 +61,13 @@ end
 
 function msCopyAnimationDialog:UpdateWidgets()
 	self.frameOffset:SetValue(msCopyAnimation.frameOffset)
+	self.randomize:SetValue(msCopyAnimation.randomize)
 end
 
 function msCopyAnimationDialog:OnOK()
 	msCopyAnimation.srcLayer = self.moho.document:LayerByName(self.menu:FirstCheckedLabel())
 	msCopyAnimation.frameOffset = self.frameOffset:FloatValue()
+	msCopyAnimation.randomize = self.randomize:Value()
 end
 
 
@@ -81,48 +86,6 @@ function msCopyAnimationDialog:CreateDropDownMenu(moho, layout, title)
 	return menu
 end
 
-function msCopyAnimation:MoveChannel(channel, amountToMove)
-	for i = 0, channel:CountKeys()-1 do
-		local frame = channel:GetKeyWhen(i)
-		if frame > 0 then 
-			channel:SetKeyWhen(i,frame + amountToMove)
-		end
-	end
-end
-
-function msCopyAnimation:CopyKeys(srcChannel, destChannel)
-	for i = 0, srcChannel:CountKeys()-1 do
-		local frame = srcChannel:GetKeyWhen(i)
-		if frame > 0 then 
-			destChannel:SetValue(frame, srcChannel:GetValue(frame))
-			destChannel:StoreValue()
-		end
-	end
-end
-
-
-function msCopyAnimation:MoveAllChannels(moho, layer)
-	for i = 0, layer:CountChannels()-2 do
-		local chInfo = MOHO.MohoLayerChannel:new_local()
-		layer:GetChannelInfo(i, chInfo)
-		if (chInfo.subChannelCount == 1) then
-			local ch = layer:Channel(i, 0, moho.document)
-			self:MoveChannel(ch, 24)
-		else
-			local moves = 1
-			-- Subchannels aer things like points
-			for subID = 0, chInfo.subChannelCount - 1 do
-				local ch = moho.layer:Channel(i, subID, moho.document)
-				if ch:CountKeys() > 1 then
-					print(" sub channel " .. subID .. " keys  " .. ch:CountKeys())
-					self:MoveChannel(ch, moves * 6)
-					moves = moves + 1
-				end
-			end
-		end
-	end
-end
-
 function msCopyAnimation:CopyChannel(srcChannel, destChannel, frameOffset)
 	if srcChannel:CountKeys() < 2 then
 		return
@@ -138,8 +101,6 @@ function msCopyAnimation:CopyChannel(srcChannel, destChannel, frameOffset)
 	-- destChannel:SetValue(frameOffset, destChannel:GetValue(0))
 	
 end
--- local deckOfCards = { "AS", "2S", "3S", "KH", "QD" }
-
 math.randomseed( os.time() )
 
 function msCopyAnimation:ShuffleTable( t )
@@ -153,9 +114,6 @@ function msCopyAnimation:ShuffleTable( t )
         t[i], t[j] = t[j], t[i]
     end
 end
-
--- shuffleTable( deckOfCards )
-
 
 function msCopyAnimation:CopyAnimation(destLayer)
 	local srcLayer = self.srcLayer
@@ -175,7 +133,7 @@ function msCopyAnimation:IsEnabled(moho)
 	return true
 end
 
-function msCopyAnimation:CopyAnimationIncludingGroups(layer)
+function msCopyAnimation:AddLayerToList(layer)
 	if layer == self.srcLayer then
 		return
 	end
@@ -183,10 +141,10 @@ function msCopyAnimation:CopyAnimationIncludingGroups(layer)
 		local group = self.moho:LayerAsGroup(layer)
 		for i = 0, group:CountLayers()-1 do
 			local sublayer = group:Layer(i)
-			self:CopyAnimationIncludingGroups(sublayer)
+			self:AddLayerToList(sublayer)
 		end
 	else
-		self:CopyAnimation(layer)
+		table.insert(self.layerList, layer)
 	end
 	
 end
@@ -205,22 +163,16 @@ function msCopyAnimation:Run(moho)
 	
 	moho:SetCurFrame(0)
 	
+	self.layerList = {}
 	self.totalFrameOffset = self.frameOffset
-
-	local numberList = {}
 	for i = 0, moho.document:CountSelectedLayers()-1 do
-		table.insert(numberList, i+1)
+		local layer = moho.document:GetSelectedLayer(i)
+		self:AddLayerToList(layer)
 	end
-	self:ShuffleTable(numberList)
-	for k, v in ipairs( numberList ) do
-		print(v)
+	if self.randomize then
+		self:ShuffleTable(self.layerList)
 	end
-	
-	
-	
-	-- for i = 0, moho.document:CountSelectedLayers()-1 do
-		-- local layer = moho.document:GetSelectedLayer(i)
-		-- self:CopyAnimationIncludingGroups(layer)
-	-- end
-
+	for k, v in ipairs(self.layerList ) do
+		self:CopyAnimation(v)
+	end
 end
