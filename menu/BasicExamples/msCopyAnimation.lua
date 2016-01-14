@@ -26,7 +26,7 @@ function msCopyAnimation:UILabel()
 	return "Copy Animation ..."
 end
 
-msCopyAnimation.srcLayer = ""
+msCopyAnimation.srcLayer = nil
 msCopyAnimation.frameOffset = 1
 msCopyAnimation.randomize = false
 
@@ -42,6 +42,8 @@ function msCopyAnimationDialog:new(moho)
 			l:AddChild(LM.GUI.StaticText("Frame Offset"),LM.GUI.ALIGN_LEFT)
 		    d.randomize = LM.GUI.CheckBox("Randomize Offsets")
 			l:AddChild(d.randomize)
+		    d.accumulateOffsets = LM.GUI.CheckBox("Accumulate Offsets")
+			l:AddChild(d.accumulateOffsets)
 		l:Pop()
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			d.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
@@ -53,7 +55,7 @@ function msCopyAnimationDialog:new(moho)
 end
 
 function msCopyAnimationDialog:OnValidate()
-	if (not self:Validate(self.frameOffset, 1, 1000)) then
+	if (not self:Validate(self.frameOffset, 0, 1000)) then
 		return false
 	end
 	return true
@@ -62,12 +64,15 @@ end
 function msCopyAnimationDialog:UpdateWidgets()
 	self.frameOffset:SetValue(msCopyAnimation.frameOffset)
 	self.randomize:SetValue(msCopyAnimation.randomize)
+	self.accumulateOffsets:SetValue(msCopyAnimation.accumulateOffsets)
 end
 
+
 function msCopyAnimationDialog:OnOK()
-	msCopyAnimation.srcLayer = self.moho.document:LayerByName(self.menu:FirstCheckedLabel())
+	msCopyAnimation.srcLayerName = self.menu:FirstCheckedLabel()
 	msCopyAnimation.frameOffset = self.frameOffset:FloatValue()
 	msCopyAnimation.randomize = self.randomize:Value()
+	msCopyAnimation.accumulateOffsets = self.accumulateOffsets:Value()
 end
 
 
@@ -118,7 +123,9 @@ end
 function msCopyAnimation:CopyAnimation(destLayer)
 	local srcLayer = self.srcLayer
 	local frameOffset = self.totalFrameOffset
-	self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
+	if self.accumulateOffsets then
+		self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
+	end
 	self:CopyChannel(srcLayer.fTranslation, destLayer.fTranslation, frameOffset)
 	self:CopyChannel(srcLayer.fScale, destLayer.fScale, frameOffset)
 	self:CopyChannel(srcLayer.fRotationZ, destLayer.fRotationZ, frameOffset)
@@ -134,8 +141,14 @@ function msCopyAnimation:IsEnabled(moho)
 end
 
 function msCopyAnimation:AddLayerToList(layer)
-	if layer == self.srcLayer then
-		return
+	if layer:Name() == self.srcLayerName then
+		if self.srcLayer ~= nil then
+			print("There are multiple layers with the same name as the base animation layer.")
+			print("It could cause a problem. Taking the first layer encountered as base animation layer.")
+		else
+			self.srcLayer = layer
+			return
+		end
 	end
 	if layer:IsGroupType() then
 		local group = self.moho:LayerAsGroup(layer)
@@ -162,7 +175,7 @@ function msCopyAnimation:Run(moho)
 	end
 	
 	moho:SetCurFrame(0)
-	
+	self.srcLayer = nil
 	self.layerList = {}
 	self.totalFrameOffset = self.frameOffset
 	for i = 0, moho.document:CountSelectedLayers()-1 do
