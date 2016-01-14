@@ -29,6 +29,8 @@ end
 msCopyAnimation.srcLayer = nil
 msCopyAnimation.frameOffset = 1
 msCopyAnimation.randomize = false
+msCopyAnimation.accumulateOffsets = true
+msCopyAnimation.copyToGroups = false
 
 msCopyAnimationDialog = {}
 
@@ -41,9 +43,11 @@ function msCopyAnimationDialog:new(moho)
 			l:AddChild(LM.GUI.StaticText("Select Base Animation Layer"),LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("Frame Offset"),LM.GUI.ALIGN_LEFT)
 		    d.randomize = LM.GUI.CheckBox("Randomize Offsets")
-			l:AddChild(d.randomize)
+			l:AddChild(d.randomize,LM.GUI.ALIGN_LEFT)
+		    d.copyToGroups = LM.GUI.CheckBox("Copy to/from groups")
+			l:AddChild(d.copyToGroups,LM.GUI.ALIGN_LEFT)
 		    d.accumulateOffsets = LM.GUI.CheckBox("Accumulate Offsets")
-			l:AddChild(d.accumulateOffsets)
+			l:AddChild(d.accumulateOffsets,LM.GUI.ALIGN_LEFT)
 		l:Pop()
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			d.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
@@ -65,6 +69,7 @@ function msCopyAnimationDialog:UpdateWidgets()
 	self.frameOffset:SetValue(msCopyAnimation.frameOffset)
 	self.randomize:SetValue(msCopyAnimation.randomize)
 	self.accumulateOffsets:SetValue(msCopyAnimation.accumulateOffsets)
+	self.copyToGroups:SetValue(msCopyAnimation.copyToGroups)
 end
 
 
@@ -73,6 +78,7 @@ function msCopyAnimationDialog:OnOK()
 	msCopyAnimation.frameOffset = self.frameOffset:FloatValue()
 	msCopyAnimation.randomize = self.randomize:Value()
 	msCopyAnimation.accumulateOffsets = self.accumulateOffsets:Value()
+	msCopyAnimation.copyToGroups = self.copyToGroups:Value()
 end
 
 
@@ -150,7 +156,7 @@ function msCopyAnimation:AddLayerToList(layer)
 			return
 		end
 	end
-	if layer:IsGroupType() then
+	if self.copyToGroups and layer:IsGroupType() then
 		local group = self.moho:LayerAsGroup(layer)
 		for i = 0, group:CountLayers()-1 do
 			local sublayer = group:Layer(i)
@@ -173,7 +179,7 @@ function msCopyAnimation:Run(moho)
 	if (dlog:DoModal() == LM.GUI.MSG_CANCEL) then
 		return
 	end
-	
+	moho.document:SetDirty()
 	moho:SetCurFrame(0)
 	self.srcLayer = nil
 	self.layerList = {}
