@@ -1,55 +1,43 @@
-From left, right, up, down
-overshoot
-ingress frames
-elastic in frames
-leaving frames
-
-Plop
-numFrames
-in num bounces
-out num bounces
-
-
-ScriptName = "msSmartAnimation"
-msSmartAnimation = {}
+ScriptName = "msCopyAnimation"
+msCopyAnimation = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msSmartAnimation:Name()
-	return "Smart Animation ..."
+function msCopyAnimation:Name()
+	return "Copy Animation ..."
 end
 
-function msSmartAnimation:Version()
+function msCopyAnimation:Version()
 	return "1.1"
 end
 
-function msSmartAnimation:Description()
+function msCopyAnimation:Description()
 	return "Copies animation from one layer to all other selected layers. Make sure layer position, scale and rotation are initially 0."
 end
 
-function msSmartAnimation:Creator()
+function msCopyAnimation:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msSmartAnimation:UILabel()
-	return "Smart Animation ..."
+function msCopyAnimation:UILabel()
+	return "Copy Animation ..."
 end
 
-msSmartAnimation.srcLayer = nil
-msSmartAnimation.frameOffset = 1
-msSmartAnimation.randomize = false
-msSmartAnimation.accumulateOffsets = true
-msSmartAnimation.SmartToGroups = false
-msSmartAnimation.offsetStartFrame = 2
-msSmartAnimation.skipToStart = true
+msCopyAnimation.srcLayer = nil
+msCopyAnimation.frameOffset = 1
+msCopyAnimation.randomize = false
+msCopyAnimation.accumulateOffsets = true
+msCopyAnimation.copyToGroups = false
+msCopyAnimation.offsetStartFrame = 2
+msCopyAnimation.skipToStart = true
 
-msSmartAnimationDialog = {}
+msCopyAnimationDialog = {}
 
-function msSmartAnimationDialog:new(moho)
-	local d = LM.GUI.SimpleDialog("Smart Animation", msSmartAnimationDialog)
+function msCopyAnimationDialog:new(moho)
+	local d = LM.GUI.SimpleDialog("Copy Animation", msCopyAnimationDialog)
 	local l = d:GetLayout()
 	d.moho = moho
 	l:PushH(LM.GUI.ALIGN_LEFT)
@@ -61,8 +49,8 @@ function msSmartAnimationDialog:new(moho)
 			l:AddChild(d.skipToStart,LM.GUI.ALIGN_LEFT)
 		    d.randomize = LM.GUI.CheckBox("Randomize Offsets")
 			l:AddChild(d.randomize,LM.GUI.ALIGN_LEFT)
-		    d.SmartToGroups = LM.GUI.CheckBox("Smart to/from groups")
-			l:AddChild(d.SmartToGroups,LM.GUI.ALIGN_LEFT)
+		    d.copyToGroups = LM.GUI.CheckBox("Copy to/from groups")
+			l:AddChild(d.copyToGroups,LM.GUI.ALIGN_LEFT)
 		    d.accumulateOffsets = LM.GUI.CheckBox("Accumulate Offsets")
 			l:AddChild(d.accumulateOffsets,LM.GUI.ALIGN_LEFT)
 		l:Pop()
@@ -77,35 +65,35 @@ function msSmartAnimationDialog:new(moho)
 	return d
 end
 
-function msSmartAnimationDialog:OnValidate()
+function msCopyAnimationDialog:OnValidate()
 	if (not self:Validate(self.frameOffset, 0, 1000)) then
 		return false
 	end
 	return true
 end
 
-function msSmartAnimationDialog:UpdateWidgets()
-	self.frameOffset:SetValue(msSmartAnimation.frameOffset)
-	self.skipToStart:SetValue(msSmartAnimation.skipToStart)
-	self.randomize:SetValue(msSmartAnimation.randomize)
-	self.accumulateOffsets:SetValue(msSmartAnimation.accumulateOffsets)
-	self.SmartToGroups:SetValue(msSmartAnimation.SmartToGroups)
+function msCopyAnimationDialog:UpdateWidgets()
+	self.frameOffset:SetValue(msCopyAnimation.frameOffset)
+	self.skipToStart:SetValue(msCopyAnimation.skipToStart)
+	self.randomize:SetValue(msCopyAnimation.randomize)
+	self.accumulateOffsets:SetValue(msCopyAnimation.accumulateOffsets)
+	self.copyToGroups:SetValue(msCopyAnimation.copyToGroups)
 	self.offsetStartFrame:SetValue(self.moho.frame)
 end
 
 
-function msSmartAnimationDialog:OnOK()
-	msSmartAnimation.srcLayerName = self.menu:FirstCheckedLabel()
-	msSmartAnimation.frameOffset = self.frameOffset:FloatValue()
-	msSmartAnimation.skipToStart = self.skipToStart:Value()
-	msSmartAnimation.randomize = self.randomize:Value()
-	msSmartAnimation.accumulateOffsets = self.accumulateOffsets:Value()
-	msSmartAnimation.SmartToGroups = self.SmartToGroups:Value()
-	msSmartAnimation.offsetStartFrame = self.offsetStartFrame:FloatValue()
+function msCopyAnimationDialog:OnOK()
+	msCopyAnimation.srcLayerName = self.menu:FirstCheckedLabel()
+	msCopyAnimation.frameOffset = self.frameOffset:FloatValue()
+	msCopyAnimation.skipToStart = self.skipToStart:Value()
+	msCopyAnimation.randomize = self.randomize:Value()
+	msCopyAnimation.accumulateOffsets = self.accumulateOffsets:Value()
+	msCopyAnimation.copyToGroups = self.copyToGroups:Value()
+	msCopyAnimation.offsetStartFrame = self.offsetStartFrame:FloatValue()
 end
 
 
-function msSmartAnimationDialog:CreateDropDownMenu(moho, layout, title)
+function msCopyAnimationDialog:CreateDropDownMenu(moho, layout, title)
 	local menu = LM.GUI.Menu(title)
 
 	for i = 0, moho.document:CountSelectedLayers()-1 do
@@ -120,7 +108,7 @@ function msSmartAnimationDialog:CreateDropDownMenu(moho, layout, title)
 	return menu
 end
 
-function msSmartAnimation:SmartChannel(srcChannel, destChannel, frameOffset)
+function msCopyAnimation:CopyChannel(srcChannel, destChannel, frameOffset)
 	if srcChannel:CountKeys() < 2 then
 		return
 	end
@@ -143,7 +131,7 @@ function msSmartAnimation:SmartChannel(srcChannel, destChannel, frameOffset)
 end
 math.randomseed( os.time() )
 
-function msSmartAnimation:ShuffleTable( t )
+function msCopyAnimation:ShuffleTable( t )
     local rand = math.random 
     assert( t, "shuffleTable() expected a table, got nil" )
     local iterations = #t
@@ -155,28 +143,28 @@ function msSmartAnimation:ShuffleTable( t )
     end
 end
 
-function msSmartAnimation:SmartAnimation(destLayer)
+function msCopyAnimation:CopyAnimation(destLayer)
 	local srcLayer = self.srcLayer
 	local frameOffset = self.totalFrameOffset
 	destLayer:ClearAnimation(false,self.offsetStartFrame-1,false)
 	if self.accumulateOffsets then
 		self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
 	end
-	self:SmartChannel(srcLayer.fTranslation, destLayer.fTranslation, frameOffset)
-	self:SmartChannel(srcLayer.fScale, destLayer.fScale, frameOffset)
-	self:SmartChannel(srcLayer.fRotationZ, destLayer.fRotationZ, frameOffset)
-	self:SmartChannel(srcLayer.fVisibility, destLayer.fVisibility, frameOffset)
-	self:SmartChannel(srcLayer.fAlpha, destLayer.fAlpha, frameOffset)
+	self:CopyChannel(srcLayer.fTranslation, destLayer.fTranslation, frameOffset)
+	self:CopyChannel(srcLayer.fScale, destLayer.fScale, frameOffset)
+	self:CopyChannel(srcLayer.fRotationZ, destLayer.fRotationZ, frameOffset)
+	self:CopyChannel(srcLayer.fVisibility, destLayer.fVisibility, frameOffset)
+	self:CopyChannel(srcLayer.fAlpha, destLayer.fAlpha, frameOffset)
 end
 
-function msSmartAnimation:IsEnabled(moho)
+function msCopyAnimation:IsEnabled(moho)
 	if moho.document:CountSelectedLayers() < 2 then
 		return false
 	end
 	return true
 end
 
-function msSmartAnimation:AddLayerToList(layer)
+function msCopyAnimation:AddLayerToList(layer)
 	if layer:Name() == self.srcLayerName then
 		if self.srcLayer ~= nil then
 			print("There are multiple layers with the same name as the base animation layer.")
@@ -186,7 +174,7 @@ function msSmartAnimation:AddLayerToList(layer)
 			return
 		end
 	end
-	if self.SmartToGroups and layer:IsGroupType() then
+	if self.copyToGroups and layer:IsGroupType() then
 		local group = self.moho:LayerAsGroup(layer)
 		for i = 0, group:CountLayers()-1 do
 			local sublayer = group:Layer(i)
@@ -202,10 +190,10 @@ end
 -- **************************************************
 -- The guts of this script
 -- **************************************************
-function msSmartAnimation:Run(moho)
+function msCopyAnimation:Run(moho)
 	local layer = moho.layer
 	self.moho = moho
-	local dlog = msSmartAnimationDialog:new(moho)
+	local dlog = msCopyAnimationDialog:new(moho)
 	if (dlog:DoModal() == LM.GUI.MSG_CANCEL) then
 		return
 	end
@@ -222,6 +210,6 @@ function msSmartAnimation:Run(moho)
 		self:ShuffleTable(self.layerList)
 	end
 	for k, v in ipairs(self.layerList ) do
-		self:SmartAnimation(v)
+		self:CopyAnimation(v)
 	end
 end
