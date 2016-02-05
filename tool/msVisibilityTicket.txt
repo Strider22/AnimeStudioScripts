@@ -1,0 +1,23 @@
+Two Way Ticket to Frame 0. 	version 0.3 	Date:2008-10-01 	Download
+
+Have you ever found yourself in the position that you needs to go back to frame 0 to fix something and when you have you completely forgot where you were?
+Well, fear no more, install this script and whenever you needs to fix something press your selected button and you are moved to frame 0. When you are done you just press the same button again and are automatically moved to the frame you started at.
+
+Installation: Download and unzip in your >scripts>tool folder.
+
+Then open _tool_list.txt located in the tool folder.
+
+I suggest installing this script either into the "Other" section of the tool-palette or adding a new group called Navigation. To do this either add the following line to the end of the file _tool_list.txt;
+
+button   DR_two_way_ticket_frame0   Y
+
+or add the following lines;
+
+group Navigation
+color   204 220 232 255 
+button   DR_two_way_ticket_frame0   Y
+
+(Y is the hotkey, you can set this to whatever key you want, J, K, O and Y is by default not mapped to any tool).
+Save _tool_list.txt and refresh Moho (ctrl+F5).
+
+Note; Currently the framenumber in the little square at top left of the Timeline panel doesn't update when you transfer to frame 0 but as soon as you go back or scrub the timeline it's back to normal.

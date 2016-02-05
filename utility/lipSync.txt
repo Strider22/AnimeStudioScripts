@@ -1,0 +1,61 @@
+Scarlett 2
+Open/Close Squash/Stretch
+AI 304 349
+E 278 349
+L 267 353
+etc 258 349
+FV 233 349
+MBP 203 349
+rest 223 368
+O 298 285
+U 263 285
+WQ 193 266
+Bigsby 1
+Open/Close
+AI 245
+E 216
+L 216
+etc 198
+FV 183
+MBP 180
+rest 180
+O 203
+U 197
+WQ 188
+Dragon 1
+B70
+AI 280
+E 285
+L 285 
+etc 290
+FV 295
+MBP 298
+rest 298
+O 285
+U 290
+WQ 295
+Gorilla 1
+Menace
+AI 159
+E 165
+L 165
+etc 170
+FV 173
+MBP 177
+rest 177 
+O 165
+U 170
+WQ 173
+Gruille 1
+Mouth
+AI 371
+E 380
+L 380
+etc 390 
+FV 395
+MBP 403
+rest 403
+O 380
+U 390
+WQ 395 
+end
