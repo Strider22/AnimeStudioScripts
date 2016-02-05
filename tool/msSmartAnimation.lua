@@ -1,15 +1,3 @@
-From left, right, up, down
-overshoot
-ingress frames
-elastic in frames
-leaving frames
-
-Plop
-numFrames
-in num bounces
-out num bounces
-
-
 ScriptName = "msSmartAnimation"
 msSmartAnimation = {}
 -- **************************************************
