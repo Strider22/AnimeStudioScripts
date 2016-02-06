@@ -1,5 +1,12 @@
 msSmartAnimation = {}
 
+msSmartAnimation.borderScale = 1.6
+msSmartAnimation.ingressFrames = 10
+msSmartAnimation.resolveFrames = 20
+msSmartAnimation.bounceScale = 1.05
+msSmartAnimation.visibilityStart = 1
+
+
 function msSmartAnimation:Creator()
 	return "Mitchel Soltys"
 end
@@ -89,11 +96,11 @@ function msSmartAnimation:ExitRight(layer, startFrame, resolveFrames)
 
 	local finalValue = self.border - bounds.fMin.x 
 
-	layer.fVisibility:SetValue(startFrame + 100 + resolveFrames, false)
+	layer.fVisibility:SetValue(startFrame + resolveFrames, false)
 
-	self:SetLocation(channel, startFrame + 100, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, startFrame, location, MOHO.INTERP_SMOOTH)
 	location.x = finalValue
-	self:SetLocation(channel, startFrame + 100 + resolveFrames, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, startFrame + resolveFrames, location, MOHO.INTERP_SMOOTH)
 end
 
 function msSmartAnimation:ExitLeft(layer, startFrame, resolveFrames)
