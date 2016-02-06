@@ -1,34 +1,34 @@
-ScriptName = "msEnterFromRight"
-msEnterFromRight = {}
+ScriptName = "msExitRight"
+msExitRight = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msEnterFromRight:Name()
-	return "Enter From Right ..."
+function msExitRight:Name()
+	return "Exit Right ..."
 end
 
-function msEnterFromRight:Version()
+function msExitRight:Version()
 	return "1.1"
 end
 
-function msEnterFromRight:Description()
-	return "Cause layer to enter from the right."
+function msExitRight:Description()
+	return "Cause layer to exit to the right."
 end
 
-function msEnterFromRight:Creator()
+function msExitRight:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msEnterFromRight:UILabel()
+function msExitRight:UILabel()
 	return "Enter From Right ..."
 end
 
 -- 15 minutes
 
-function msEnterFromRight:Run(moho)
+function msExitRight:Run(moho)
 	self.frame =  moho.frame
 	self.moho = moho
 	self.borderScale = 1.6
@@ -40,6 +40,6 @@ function msEnterFromRight:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
-	
-	msSmartAnimation:EnterFromRight(layer,self.visibilityStart, self.frame, self.ingressFrames, self.resolveFrames, self.bounceScale)
+
+	msSmartAnimation:ExitRight(layer,self.frame, self.resolveFrames)
 end

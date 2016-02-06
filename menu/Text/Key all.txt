@@ -1,0 +1,84 @@
+*******************************************************************
+
+
+-- **************************************************
+-- Provide Moho with the name of this script object
+-- **************************************************
+
+ScriptName = "MK_key_skeleton"
+
+-- **************************************************
+-- General information about this script
+-- **************************************************
+
+MK_key_skeleton = {}
+
+function MK_key_skeleton:Name()
+return "Key Skeleton"
+end
+
+function MK_key_skeleton:Version()
+return "6.0"
+end
+
+function MK_key_skeleton:Description()
+return "Creates Skeleton Keys "
+end
+
+function MK_key_skeleton:Creator()
+return "Mike Kelley"
+end
+
+function MK_key_skeleton:UILabel()
+return("Key Skeleton")
+end
+
+MK_key_skeleton.selCount = 1
+
+-- **************************************************
+-- The guts of this script
+-- **************************************************
+
+function MK_key_skeleton:Run(moho)
+local skel = moho:Skeleton()
+local layer = moho.layer
+
+if layer:LayerType() == MOHO.LT_BONE and (skel ~= nil) then
+moho.document:PrepUndo(moho.layer)
+moho.document:SetDirty()
+for i = 0, skel:CountBones() - 1 do
+local bone = skel:Bone(i)
+bone.fAnimPos:AddKey( moho.frame )
+bone.fAnimAngle:AddKey( moho.frame )
+bone.fAnimScale:AddKey( moho.frame )
+end
+moho.layer:UpdateCurFrame()
+moho:UpdateBonePointSelection()
+moho:UpdateUI() 
+return
+end
+
+local switchLayer = moho:LayerAsSwitch(moho.layer)
+if (switchLayer) then
+self.selCount = moho.document:CountSelectedLayers()
+for i = 0, self.selCount - 1 do
+layer = moho.document:GetSelectedLayer(i)
+switchLayer = moho:LayerAsSwitch(layer)
+if (switchLayer) then
+moho.document:PrepUndo(moho.layer)
+moho.document:SetDirty()
+switchLayer:SwitchValues():SetValue(moho.layerFrame, switchLayer:SwitchValues():GetValue(moho.layerFrame))
+moho:NewKeyframe(CHANNEL_SWITCH)
+end
+end
+return
+end
+
+self.selCount = moho.document:CountSelectedLayers()
+for i = 0, self.selCount - 1 do
+layer = moho.document:GetSelectedLayer(i)
+layer.fTranslation:AddKey( moho.frame )
+layer.fScale:AddKey(moho.frame)
+layer.fRotationZ:AddKey(moho.frame)
+end
+end

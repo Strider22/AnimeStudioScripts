@@ -58,4 +58,16 @@ rest 403
 O 380
 U 390
 WQ 395 
+Jace 1
+Mouth
+AI 440
+E 430
+L 375
+etc 422 
+FV 370
+MBP 350
+rest 360
+O 410
+U 385
+WQ 395 
 end

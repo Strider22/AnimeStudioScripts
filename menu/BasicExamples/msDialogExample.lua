@@ -1,3 +1,7 @@
+-- **************************************************
+-- Provide Moho with the name of this script object
+-- **************************************************
+
 ScriptName = "msDialogExample"
 
 -- **************************************************
@@ -6,6 +10,7 @@ ScriptName = "msDialogExample"
 
 msDialogExample = {}
 
+<<<<<<< HEAD
 msDialogExample.BASE_STR = 2530
 
 
@@ -22,6 +27,20 @@ end
 
 function msDialogExample:Description()
 	return MOHO.Localize("/Scripts/Menu/Dialog/Description=Simple example of using a dialog.")
+=======
+msDialogExample.BASE_STR = 2540
+
+function msDialogExample:Name()
+	return "DialogExample"
+end
+
+function msDialogExample:Version()
+	return "1.0"
+end
+
+function msDialogExample:Description()
+	return MOHO.Localize("/Scripts/Menu/DialogExample/Description=DialogExample in/out the current layer.")
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 end
 
 function msDialogExample:Creator()
@@ -29,13 +48,18 @@ function msDialogExample:Creator()
 end
 
 function msDialogExample:UILabel()
+<<<<<<< HEAD
 	return(MOHO.Localize("/Scripts/Menu/Dialog/LayerDialog=Dialog"))
+=======
+	return(MOHO.Localize("/Scripts/Menu/DialogExample/DialogExample=DialogExample..."))
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 end
 
 -- **************************************************
 -- Recurring values
 -- **************************************************
 
+<<<<<<< HEAD
 msDialogExample.audioLayer = 0
 msDialogExample.interpolationStyle = 1
 msDialogExample.AI = .3
@@ -57,11 +81,20 @@ msDialogExample.MBPlowest = false
 
 -- **************************************************
 -- Dialog dialog
+=======
+msDialogExample.duration = 12
+msDialogExample.blur = 16
+msDialogExample.DialogExampleOut = true
+
+-- **************************************************
+-- DialogExample dialog
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 -- **************************************************
 
 local msDialogExampleDialog = {}
 
 function msDialogExampleDialog:new(moho)
+<<<<<<< HEAD
 	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/Dialog/Title=Dialog"), msDialogExampleDialog)
 	local layout = dialog:GetLayout()
 
@@ -188,11 +221,53 @@ function msDialogExampleDialog:OnValidate()
 		b = false
 	end
 	if (not self:Validate(self.stepSize, 1, 1000)) then
+=======
+	local d = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/DialogExample/Title=DialogExample"), msDialogExampleDialog)
+	local l = d:GetLayout()
+
+	d.moho = moho
+
+	l:PushH()
+		l:PushV()
+			l:AddChild(LM.GUI.StaticText(MOHO.Localize("/Scripts/Menu/DialogExample/Duration=Duration (frames)")), LM.GUI.ALIGN_LEFT)
+			l:AddChild(LM.GUI.StaticText(MOHO.Localize("/Scripts/Menu/DialogExample/BlurRadius=Blur radius")), LM.GUI.ALIGN_LEFT)
+		l:Pop()
+		l:PushV()
+			d.duration = LM.GUI.TextControl(0, "0000", 0, LM.GUI.FIELD_UINT)
+			l:AddChild(d.duration)
+			d.blur = LM.GUI.TextControl(0, "0000", 0, LM.GUI.FIELD_UINT)
+			l:AddChild(d.blur)
+		l:Pop()
+	l:Pop()
+
+	d.DialogExampleIn = LM.GUI.RadioButton(MOHO.Localize("/Scripts/Menu/DialogExample/DialogExampleIn=DialogExample in"))
+	l:AddChild(d.DialogExampleIn, LM.GUI.ALIGN_LEFT)
+	d.DialogExampleOut = LM.GUI.RadioButton(MOHO.Localize("/Scripts/Menu/DialogExample/DialogExampleOut=DialogExample out"))
+	l:AddChild(d.DialogExampleOut, LM.GUI.ALIGN_LEFT)
+
+	return d
+end
+
+function msDialogExampleDialog:UpdateWidgets()
+	self.duration:SetValue(msDialogExample.duration)
+	self.blur:SetValue(msDialogExample.blur)
+	self.DialogExampleIn:SetValue(not msDialogExample.DialogExampleOut)
+	self.DialogExampleOut:SetValue(msDialogExample.DialogExampleOut)
+end
+
+function msDialogExampleDialog:OnValidate()
+	local b = true
+	if (not self:Validate(self.duration, 2, 1000000)) then
+		b = false
+	end
+	if (not self:Validate(self.blur, 0, 30)) then
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 		b = false
 	end
 	return b
 end
 
+<<<<<<< HEAD
 -- **************************************************
 -- Set values from dialog
 -- **************************************************
@@ -220,12 +295,31 @@ function msDialogExampleDialog:OnOK()
 			self.stepSize:FloatValue(),
 			.3)
 
+=======
+function msDialogExampleDialog:OnOK()
+	msDialogExample.duration = self.duration:IntValue()
+	msDialogExample.blur = self.blur:IntValue()
+	msDialogExample.DialogExampleOut = self.DialogExampleOut:Value()
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 end
 
 -- **************************************************
 -- The guts of this script
 -- **************************************************
+<<<<<<< HEAD
 function msDialogExample:Run(moho)
 	msDialogExample:Display(moho, msDialogExampleDialog)
 	if(msDialogExample.cancelled) then return end
+=======
+
+function msDialogExample:Run(moho)
+	local dlog = msDialogExampleDialog:new(moho)
+	if (dlog:DoModal() == LM.GUI.MSG_CANCEL) then
+		return
+	end
+
+	moho.document:SetDirty()
+	moho.document:PrepUndo(moho.layer)
+
+>>>>>>> c62b3588237e107945c4e075ea48e11926e65774
 end
