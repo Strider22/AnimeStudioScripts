@@ -8,7 +8,7 @@ function msCopyAnimation:Name()
 end
 
 function msCopyAnimation:Version()
-	return "1.0"
+	return "1.1"
 end
 
 function msCopyAnimation:Description()
@@ -31,6 +31,8 @@ msCopyAnimation.frameOffset = 1
 msCopyAnimation.randomize = false
 msCopyAnimation.accumulateOffsets = true
 msCopyAnimation.copyToGroups = false
+msCopyAnimation.offsetStartFrame = 2
+msCopyAnimation.skipToStart = true
 
 msCopyAnimationDialog = {}
 
@@ -41,7 +43,10 @@ function msCopyAnimationDialog:new(moho)
 	l:PushH(LM.GUI.ALIGN_LEFT)
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("Select Base Animation Layer"),LM.GUI.ALIGN_LEFT)
-			l:AddChild(LM.GUI.StaticText("Frame Offset"),LM.GUI.ALIGN_LEFT)
+			l:AddChild(LM.GUI.StaticText("Offset Amount"),LM.GUI.ALIGN_LEFT)
+			l:AddChild(LM.GUI.StaticText("Offset Start frame"),LM.GUI.ALIGN_LEFT)
+		    d.skipToStart = LM.GUI.CheckBox("Skip to Start Frame")
+			l:AddChild(d.skipToStart,LM.GUI.ALIGN_LEFT)
 		    d.randomize = LM.GUI.CheckBox("Randomize Offsets")
 			l:AddChild(d.randomize,LM.GUI.ALIGN_LEFT)
 		    d.copyToGroups = LM.GUI.CheckBox("Copy to/from groups")
@@ -53,6 +58,8 @@ function msCopyAnimationDialog:new(moho)
 			d.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
 			d.frameOffset = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
 			l:AddChild(d.frameOffset)
+			d.offsetStartFrame = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+			l:AddChild(d.offsetStartFrame)
 		l:Pop()
 	l:Pop()
 	return d
@@ -67,18 +74,22 @@ end
 
 function msCopyAnimationDialog:UpdateWidgets()
 	self.frameOffset:SetValue(msCopyAnimation.frameOffset)
+	self.skipToStart:SetValue(msCopyAnimation.skipToStart)
 	self.randomize:SetValue(msCopyAnimation.randomize)
 	self.accumulateOffsets:SetValue(msCopyAnimation.accumulateOffsets)
 	self.copyToGroups:SetValue(msCopyAnimation.copyToGroups)
+	self.offsetStartFrame:SetValue(self.moho.frame)
 end
 
 
 function msCopyAnimationDialog:OnOK()
 	msCopyAnimation.srcLayerName = self.menu:FirstCheckedLabel()
 	msCopyAnimation.frameOffset = self.frameOffset:FloatValue()
+	msCopyAnimation.skipToStart = self.skipToStart:Value()
 	msCopyAnimation.randomize = self.randomize:Value()
 	msCopyAnimation.accumulateOffsets = self.accumulateOffsets:Value()
 	msCopyAnimation.copyToGroups = self.copyToGroups:Value()
+	msCopyAnimation.offsetStartFrame = self.offsetStartFrame:FloatValue()
 end
 
 
@@ -104,13 +115,19 @@ function msCopyAnimation:CopyChannel(srcChannel, destChannel, frameOffset)
 	local interpSetting = MOHO.InterpSetting:new_local()
 	for i = 0, srcChannel:CountKeys()-1 do
 		local frame = srcChannel:GetKeyWhen(i)
-		destChannel:SetValue(frame + frameOffset, srcChannel:GetValue(frame))
+		
+		local keyOffset = frameOffset
+		if frame < self.offsetStartFrame then 
+			if self.skipToStart then goto continue end
+			keyOffset = 0
+		end
+		destChannel:SetValue(frame + keyOffset, srcChannel:GetValue(frame))
 		srcChannel:GetKeyInterp(frame,interpSetting)
-		destChannel:SetKeyInterp(frame+frameOffset,interpSetting)
+		destChannel:SetKeyInterp(frame+keyOffset,interpSetting)	
+		::continue::
 	end
 	-- Set the initial frame to be 0
 	-- destChannel:SetValue(frameOffset, destChannel:GetValue(0))
-	
 end
 math.randomseed( os.time() )
 
@@ -129,6 +146,7 @@ end
 function msCopyAnimation:CopyAnimation(destLayer)
 	local srcLayer = self.srcLayer
 	local frameOffset = self.totalFrameOffset
+	destLayer:ClearAnimation(false,self.offsetStartFrame-1,false)
 	if self.accumulateOffsets then
 		self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
 	end
