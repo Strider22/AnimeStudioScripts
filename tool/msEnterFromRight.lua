@@ -4,7 +4,7 @@ msEnterFromRight = {}
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
 function msEnterFromRight:Name()
-	return "Smart Animation ..."
+	return "Enter From Right ..."
 end
 
 function msEnterFromRight:Version()
