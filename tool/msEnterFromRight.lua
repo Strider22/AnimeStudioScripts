@@ -29,19 +29,10 @@ end
 -- 15 minutes
 
 function msEnterFromRight:Run(moho)
-	self.frame =  moho.frame
-	self.moho = moho
-	self.borderScale = 1.6
-	self.ingressFrames = 10
-	self.resolveFrames = 20
-	self.bounceScale = 1.05
-	self.visibilityStart = 1
-	msSmartAnimation:SetBorder(moho.document:AspectRatio() * self.borderScale)
-	-- msSmartAnimation:SetBorder(self.bordesrScale)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 	
-	-- self.startX = layer.fTranslation:GetValue(self.frame).x
-	msSmartAnimation:EnterFromRight(layer,self.visibilityStart, self.frame, self.ingressFrames, self.resolveFrames, self.bounceScale)
+	msSmartAnimation:Init(moho)
+	msSmartAnimation:EnterFromRight(layer, 1, moho.frame)
 end

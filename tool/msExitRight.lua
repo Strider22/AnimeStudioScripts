@@ -27,17 +27,10 @@ function msExitRight:UILabel()
 end
 
 function msExitRight:Run(moho)
-	self.frame =  moho.frame
-	self.moho = moho
-	self.borderScale = 1.6
-	self.ingressFrames = 10
-	self.resolveFrames = 20
-	self.bounceScale = 1.05
-	self.visibilityStart = 1
-	msSmartAnimation:SetBorder(moho.document:AspectRatio() * self.borderScale)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 
-	msSmartAnimation:ExitRight(layer,self.frame, self.resolveFrames)
+	msSmartAnimation:Init(moho)
+	msSmartAnimation:ExitRight(layer, moho.frame)
 end
