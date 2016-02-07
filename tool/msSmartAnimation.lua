@@ -6,14 +6,17 @@ msSmartAnimation.borderScale = 1.6
 msSmartAnimation.ingressFrames = 8
 -- how many elastic frames on enter
 msSmartAnimation.resolveFrames = 17
--- how many frames in plop out
-msSmartAnimation.plopOutFrames = 20
+-- how many frames in close
+msSmartAnimation.closeFrames = 20
+-- how many frames in open
+msSmartAnimation.openFrames = 20
 -- what ratio of the total travel on ingress 
 msSmartAnimation.bounceScale = 1.03
 -- what frame should visiblity start at
 msSmartAnimation.visibilityStart = 1
 msSmartAnimation.aspectRatio = 1
 msSmartAnimation.minScale = .02
+msSmartAnimation.closeBounceCount = 2
 
 -- Enter and Exit Directions
 msSmartAnimation.LEFT = 1
@@ -29,12 +32,12 @@ function msSmartAnimation:Init(moho)
 	self.aspectRatio = moho.document:AspectRatio()
 end
 
--- function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, bounceScale, visibilityStart, plopOutFrames, moho)
+-- function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, bounceScale, visibilityStart, closeFrames, moho)
 	-- self:Init(moho)
 	-- self.ingressFrames = ingressFrames
 	-- self.resolveFrames = resolveFrames
 	-- self.bounceScale = bounceScale
-	-- self.plopOutFrames = plopOutFrames
+	-- self.closeFrames = closeFrames
 	-- self.visibilityStart = visibilityStart
 -- end
 
@@ -126,19 +129,34 @@ function msSmartAnimation:Exit(layer, frame, direction)
 	self:SetLocation(channel, frame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
 end
 
-function msSmartAnimation:PlopOut(layer, frame)
+function msSmartAnimation:Close(layer, frame)
 	local scale = LM.Vector3:new_local()
 	local channel = layer.fScale
 	scale = channel:GetValue(frame)
 
-	layer.fVisibility:SetValue(frame + self.plopOutFrames, false)
+	layer.fVisibility:SetValue(frame + self.closeFrames, false)
 
 	channel:SetValue(frame,scale)
-	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 0, 0)	
+	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 1000 + msSmartAnimation.closeBounceCount, 0.5)	
 	scale.x = self.minScale
 	scale.y = self.minScale
-	channel:SetValue(frame + self.plopOutFrames,scale)
-	channel:SetKeyInterp(frame + self.plopOutFrames, MOHO.INTERP_SMOOTH, 0, 0)	
+	channel:SetValue(frame + self.closeFrames,scale)
+	channel:SetKeyInterp(frame + self.closeFrames, MOHO.INTERP_SMOOTH, 0, 0)	
+end
+
+function msSmartAnimation:Open(layer, frame)
+	local scale = LM.Vector3:new_local()
+	local channel = layer.fScale
+	scale = channel:GetValue(frame)
+
+	self:VisibilityOff(layer,self.visibilityStart,frame)
+
+	channel:SetValue(frame + self.openFrames,scale)
+	channel:SetKeyInterp(frame + self.openFrames, MOHO.INTERP_SMOOTH, 0, 0)	
+	scale.x = self.minScale
+	scale.y = self.minScale
+	channel:SetValue(frame,scale)
+	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 0 , 0.5)	
 end
 
 function msSmartAnimation:SetLocation(channel, frame, location, interp)

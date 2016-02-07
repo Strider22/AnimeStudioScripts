@@ -1,36 +1,36 @@
-ScriptName = "msPlopIn"
-msPlopIn = {}
+ScriptName = "msOpen"
+msOpen = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msPlopIn:Name()
-	return "Plop In ..."
+function msOpen:Name()
+	return "Open ..."
 end
 
-function msPlopIn:Version()
+function msOpen:Version()
 	return "1.1"
 end
 
-function msPlopIn:Description()
-	return "Cause layer to Plop In."
+function msOpen:Description()
+	return "Cause layer to Open."
 end
 
-function msPlopIn:Creator()
+function msOpen:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msPlopIn:UILabel()
-	return "Plop In ..."
+function msOpen:UILabel()
+	return "Open ..."
 end
 
-function msPlopIn:Run(moho)
+function msOpen:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:PlopIn(layer, moho.frame)
+	msSmartAnimation:Open(layer, moho.frame)
 end
