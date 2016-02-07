@@ -32,5 +32,5 @@ function msExitRight:Run(moho)
 	local layer = moho.layer
 
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:ExitRight(layer, moho.frame)
+	msSmartAnimation:ExitRight(layer, moho.frame, msSmartAnimation.RIGHT)
 end
