@@ -1,36 +1,36 @@
-ScriptName = "msEnterFromRight"
-msEnterFromRight = {}
+ScriptName = "msPlopIn"
+msPlopIn = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msEnterFromRight:Name()
-	return "Enter From Right ..."
+function msPlopIn:Name()
+	return "Plop In ..."
 end
 
-function msEnterFromRight:Version()
+function msPlopIn:Version()
 	return "1.1"
 end
 
-function msEnterFromRight:Description()
-	return "Cause layer to enter from the right."
+function msPlopIn:Description()
+	return "Cause layer to Plop In."
 end
 
-function msEnterFromRight:Creator()
+function msPlopIn:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msEnterFromRight:UILabel()
-	return "Enter From Right ..."
+function msPlopIn:UILabel()
+	return "Plop In ..."
 end
 
-function msEnterFromRight:Run(moho)
+function msPlopIn:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
-	
+
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.RIGHT)
+	msSmartAnimation:PlopIn(layer, moho.frame)
 end

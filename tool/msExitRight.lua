@@ -23,7 +23,7 @@ end
 -- This is the Script label in the GUI
 -- **************************************************
 function msExitRight:UILabel()
-	return "Enter From Right ..."
+	return "Exit Right ..."
 end
 
 function msExitRight:Run(moho)
