@@ -6,11 +6,20 @@ msSmartAnimation.borderScale = 1.6
 msSmartAnimation.ingressFrames = 8
 -- how many elastic frames on enter
 msSmartAnimation.resolveFrames = 17
+-- how many frames in plop out
+msSmartAnimation.plopOutFrames = 20
 -- what ratio of the total travel on ingress 
 msSmartAnimation.bounceScale = 1.03
 -- what frame should visiblity start at
 msSmartAnimation.visibilityStart = 1
 msSmartAnimation.aspectRatio = 1
+msSmartAnimation.minScale = .02
+
+-- Enter and Exit Directions
+msSmartAnimation.LEFT = 1
+msSmartAnimation.RIGHT = 2
+msSmartAnimation.TOP = 3
+msSmartAnimation.BOTTOM = 4
 
 function msSmartAnimation:Creator()
 	return "Mitchel Soltys"
@@ -20,155 +29,117 @@ function msSmartAnimation:Init(moho)
 	self.aspectRatio = moho.document:AspectRatio()
 end
 
-function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, bounceScale, visibilityStart, moho)
-	self:Init(moho)
-	self.ingressFrames = ingressFrames
-	self.resolveFrames = resolveFrames
-	self.bounceScale = bounceScale
-	self.visibilityStart = visibilityStart
-end
+-- function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, bounceScale, visibilityStart, plopOutFrames, moho)
+	-- self:Init(moho)
+	-- self.ingressFrames = ingressFrames
+	-- self.resolveFrames = resolveFrames
+	-- self.bounceScale = bounceScale
+	-- self.plopOutFrames = plopOutFrames
+	-- self.visibilityStart = visibilityStart
+-- end
 
-function msSmartAnimation:EnterFromLeft(layer, visibilityOffFrame, startFrame)
+
+function msSmartAnimation:Enter(layer, visibilityOffFrame, frame, direction)
 	local location = LM.Vector3:new_local()
 	local bounds = LM.BBox:new_local()
 	local channel = layer.fTranslation
-	local border = self.aspectRatio * self.borderScale
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local startValue = -border - bounds.fMax.x 
-	local travelDistance = location.x - startValue
+	local border
+	local startValue
+	local travelDistance
+	bounds = layer:Bounds(frame)
+	location = channel:GetValue(frame)
 
-	self:VisibilityOff(layer, visibilityOffFrame, startFrame - self.ingressFrames) 
+	if(direction == msSmartAnimation.LEFT) then
+		border = self.aspectRatio * self.borderScale
+		startValue = -border - bounds.fMax.x 
+		travelDistance = location.x - startValue
+	elseif (direction == msSmartAnimation.RIGHT) then
+		border = self.aspectRatio * self.borderScale
+		startValue = border - bounds.fMin.x 
+		travelDistance = location.x - startValue
+	elseif (direction == msSmartAnimation.TOP) then
+		border = self.borderScale
+		startValue = border - bounds.fMin.y 
+		travelDistance = location.y - startValue
+	else 
+		border = self.borderScale
+		startValue = -border - bounds.fMax.y 
+		travelDistance = location.y - startValue
+	end
+	
+	
+	-- VISIBILITY
+	self:VisibilityOff(layer, visibilityOffFrame, frame - self.ingressFrames) 
 
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-	location.x = startValue + (travelDistance * self.bounceScale)
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_ELASTIC)
-    location.x = startValue
-	self:SetLocation(channel, startFrame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
+	-- FINAL POSITION
+	self:SetLocation(channel, frame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
+
+	-- BOUNCE POSITION
+	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
+		location.x = startValue + (travelDistance * self.bounceScale)
+	else 
+		location.y = startValue + (travelDistance * self.bounceScale)
+	end
+	self:SetLocation(channel, frame, location, MOHO.INTERP_ELASTIC)
+
+	-- START POSITION
+	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
+		location.x = startValue
+	else 
+		location.y = startValue
+	end
+	self:SetLocation(channel, frame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
 end
 
-function msSmartAnimation:EnterFromRight(layer, visibilityOffFrame, startFrame)
+function msSmartAnimation:Exit(layer, frame, direction)
 	local location = LM.Vector3:new_local()
 	local bounds = LM.BBox:new_local()
 	local channel = layer.fTranslation
-	local border = self.aspectRatio * self.borderScale
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local startValue = border - bounds.fMin.x 
-	local travelDistance = location.x - startValue
+	local border
+	local finalValue
+	
+	bounds = layer:Bounds(frame)
+	location = channel:GetValue(frame)
 
-	self:VisibilityOff(layer, visibilityOffFrame, startFrame - self.ingressFrames) 
+	if(direction == msSmartAnimation.LEFT) then
+		border = self.aspectRatio * self.borderScale
+		finalValue = -border - bounds.fMax.x 
+	elseif (direction == msSmartAnimation.RIGHT) then
+		border = self.aspectRatio * self.borderScale
+		finalValue = border - bounds.fMin.x 
+	elseif (direction == msSmartAnimation.TOP) then
+		border = self.borderScale
+		finalValue = border - bounds.fMin.y 
+	else 
+		border = self.borderScale
+		finalValue = -border - bounds.fMax.y 
+	end
 
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-	location.x = startValue + (travelDistance * self.bounceScale)
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_ELASTIC)
-    location.x = startValue
-	self:SetLocation(channel, startFrame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
+	layer.fVisibility:SetValue(frame + self.resolveFrames, false)
+
+	self:SetLocation(channel, frame, location, MOHO.INTERP_SMOOTH)
+	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
+		location.x = finalValue
+	else 
+		location.y = finalValue
+	end
+	self:SetLocation(channel, frame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
 end
 
-function msSmartAnimation:EnterFromTop(layer, visibilityOffFrame, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local border = self.borderScale
-	local startValue = border - bounds.fMin.y 
-	local travelDistance = location.y - startValue
+function msSmartAnimation:PlopOut(layer, frame)
+	local scale = LM.Vector3:new_local()
+	local channel = layer.fScale
+	scale = channel:GetValue(frame)
 
-	self:VisibilityOff(layer, visibilityOffFrame, startFrame - self.ingressFrames) 
+	layer.fVisibility:SetValue(frame + self.plopOutFrames, false)
 
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-	location.y = startValue + (travelDistance * self.bounceScale)
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_ELASTIC)
-    location.y = startValue
-	self:SetLocation(channel, startFrame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
+	channel:SetValue(frame,scale)
+	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 0, 0)	
+	scale.x = self.minScale
+	scale.y = self.minScale
+	channel:SetValue(frame + self.plopOutFrames,scale)
+	channel:SetKeyInterp(frame + self.plopOutFrames, MOHO.INTERP_SMOOTH, 0, 0)	
 end
-
-function msSmartAnimation:EnterFromBottom(layer, visibilityOffFrame, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local border = self.borderScale
-	local startValue = -border - bounds.fMax.y 
-	local travelDistance = location.y - startValue
-
-	self:VisibilityOff(layer, visibilityOffFrame, startFrame - self.ingressFrames) 
-
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-	location.y = startValue + (travelDistance * self.bounceScale)
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_ELASTIC)
-    location.y = startValue
-	self:SetLocation(channel, startFrame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
-end
-
-function msSmartAnimation:ExitRight(layer, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	bounds = layer:Bounds(startFrame)
-	local border = self.aspectRatio * self.borderScale
-	location = channel:GetValue(startFrame)
-
-	local finalValue = border - bounds.fMin.x 
-
-	layer.fVisibility:SetValue(startFrame + self.resolveFrames, false)
-
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_SMOOTH)
-	location.x = finalValue
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-end
-
-function msSmartAnimation:ExitLeft(layer, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	local border = self.aspectRatio * self.borderScale
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local finalValue = -border - bounds.fMax.x 
-
-	layer.fVisibility:SetValue(startFrame + self.resolveFrames, false)
-
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_SMOOTH)
-	location.x = finalValue
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-end
-
-function msSmartAnimation:ExitUp(layer, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local border = self.borderScale
-	local finalValue = border - bounds.fMin.y 
-
-	layer.fVisibility:SetValue(startFrame + self.resolveFrames, false)
-
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_SMOOTH)
-	location.y = finalValue
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-end
-
-function msSmartAnimation:ExitDown(layer, startFrame)
-	local location = LM.Vector3:new_local()
-	local bounds = LM.BBox:new_local()
-	local channel = layer.fTranslation
-	bounds = layer:Bounds(startFrame)
-	location = channel:GetValue(startFrame)
-	local border = self.borderScale
-	local finalValue = -border - bounds.fMax.y
-
-	layer.fVisibility:SetValue(startFrame + self.resolveFrames, false)
-
-	self:SetLocation(channel, startFrame, location, MOHO.INTERP_SMOOTH)
-	location.y = finalValue
-	self:SetLocation(channel, startFrame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
-end
-
 
 function msSmartAnimation:SetLocation(channel, frame, location, interp)
 	channel:SetValue(frame,location)
