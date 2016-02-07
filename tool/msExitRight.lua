@@ -26,8 +26,6 @@ function msExitRight:UILabel()
 	return "Enter From Right ..."
 end
 
--- 15 minutes
-
 function msExitRight:Run(moho)
 	self.frame =  moho.frame
 	self.moho = moho
