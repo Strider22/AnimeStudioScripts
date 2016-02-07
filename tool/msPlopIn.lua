@@ -1,36 +1,36 @@
-ScriptName = "msExitRight"
-msExitRight = {}
+ScriptName = "msPlopIn"
+msPlopIn = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msExitRight:Name()
-	return "Exit Right ..."
+function msPlopIn:Name()
+	return "Plop In ..."
 end
 
-function msExitRight:Version()
+function msPlopIn:Version()
 	return "1.1"
 end
 
-function msExitRight:Description()
-	return "Cause layer to exit to the right."
+function msPlopIn:Description()
+	return "Cause layer to Plop In."
 end
 
-function msExitRight:Creator()
+function msPlopIn:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msExitRight:UILabel()
-	return "Exit Right ..."
+function msPlopIn:UILabel()
+	return "Plop In ..."
 end
 
-function msExitRight:Run(moho)
+function msPlopIn:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:ExitRight(layer, moho.frame)
+	msSmartAnimation:PlopIn(layer, moho.frame)
 end
