@@ -1,36 +1,36 @@
-ScriptName = "msClose"
-msClose = {}
+ScriptName = "msPlopOut"
+msPlopOut = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msClose:Name()
-	return "Close an image ..."
+function msPlopOut:Name()
+	return "PlopOut an image ..."
 end
 
-function msClose:Version()
+function msPlopOut:Version()
 	return "1.1"
 end
 
-function msClose:Description()
-	return "Cause layer to visually close."
+function msPlopOut:Description()
+	return "Cause layer to visually PlopOut."
 end
 
-function msClose:Creator()
+function msPlopOut:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msClose:UILabel()
-	return "Close ..."
+function msPlopOut:UILabel()
+	return "PlopOut ..."
 end
 
-function msClose:Run(moho)
+function msPlopOut:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 	
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:Close(layer, moho.frame)
+	msSmartAnimation:PlopOut(layer, moho.frame)
 end

@@ -118,45 +118,45 @@ function msSmartAnimation:Exit(layer, frame, direction)
 		finalValue = -border - bounds.fMax.y 
 	end
 
-	layer.fVisibility:SetValue(frame + self.resolveFrames, false)
+	layer.fVisibility:SetValue(frame, false)
 
-	self:SetLocation(channel, frame, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, frame -  self.resolveFrames, location, MOHO.INTERP_SMOOTH)
 	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
 		location.x = finalValue
 	else 
 		location.y = finalValue
 	end
-	self:SetLocation(channel, frame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, frame, location, MOHO.INTERP_SMOOTH)
 end
 
-function msSmartAnimation:Close(layer, frame)
+function msSmartAnimation:PlopOut(layer, frame)
 	local scale = LM.Vector3:new_local()
 	local channel = layer.fScale
 	scale = channel:GetValue(frame)
 
-	layer.fVisibility:SetValue(frame + self.closeFrames, false)
+	layer.fVisibility:SetValue(frame, false)
 
-	channel:SetValue(frame,scale)
-	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 1000 + msSmartAnimation.closeBounceCount, 0.5)	
+	channel:SetValue(frame - self.closeFrames,scale)
+	channel:SetKeyInterp(frame  - self.closeFrames,MOHO.INTERP_ELASTIC, 10000 + msSmartAnimation.closeBounceCount, 0.5)	
 	scale.x = self.minScale
 	scale.y = self.minScale
-	channel:SetValue(frame + self.closeFrames,scale)
-	channel:SetKeyInterp(frame + self.closeFrames, MOHO.INTERP_SMOOTH, 0, 0)	
+	channel:SetValue(frame,scale)
+	channel:SetKeyInterp(frame, MOHO.INTERP_SMOOTH, 0, 0)	
 end
 
-function msSmartAnimation:Open(layer, frame)
+function msSmartAnimation:PlopIn(layer, frame)
 	local scale = LM.Vector3:new_local()
 	local channel = layer.fScale
 	scale = channel:GetValue(frame)
 
-	self:VisibilityOff(layer,self.visibilityStart,frame)
+	self:VisibilityOff(layer,self.visibilityStart,frame - self.openFrames)
 
-	channel:SetValue(frame + self.openFrames,scale)
-	channel:SetKeyInterp(frame + self.openFrames, MOHO.INTERP_SMOOTH, 0, 0)	
+	channel:SetValue(frame,scale)
+	channel:SetKeyInterp(frame, MOHO.INTERP_SMOOTH, 0, 0)	
 	scale.x = self.minScale
 	scale.y = self.minScale
-	channel:SetValue(frame,scale)
-	channel:SetKeyInterp(frame,MOHO.INTERP_ELASTIC, 0 , 0.5)	
+	channel:SetValue(frame - self.openFrames,scale)
+	channel:SetKeyInterp(frame- self.openFrames,MOHO.INTERP_ELASTIC, 0 , 0.5)	
 end
 
 function msSmartAnimation:SetLocation(channel, frame, location, interp)

@@ -34,8 +34,8 @@ function msPrintKeyInterpValues:Run(moho)
 	local interpSetting = MOHO.InterpSetting:new_local()
 	moho.layer.fScale:GetKeyInterp(moho.frame,interpSetting)
 	
-	for key,value in pairs(interpSetting) do print(key,value) end
-	-- print("val1 " .. interpSetting.val1 .. " val2 " .. interpSetting.val2)
+	-- for key,value in pairs(interpSetting) do print(key,value) end
+	print("val1 " .. interpSetting.val1 .. " val2 " .. interpSetting.val2)
 	-- if(interpSetting.val1 > 1000) then
 	 -- print("backwards true ")
 	-- end
