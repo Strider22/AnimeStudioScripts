@@ -1,36 +1,36 @@
-ScriptName = "msEnterFromLeft"
-msEnterFromLeft = {}
+ScriptName = "msEnterFromBottom"
+msEnterFromBottom = {}
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msEnterFromLeft:Name()
-	return "Enter From Left ..."
+function msEnterFromBottom:Name()
+	return "Enter From Bottom ..."
 end
 
-function msEnterFromLeft:Version()
+function msEnterFromBottom:Version()
 	return "1.1"
 end
 
-function msEnterFromLeft:Description()
-	return "Cause layer to enter from the Left."
+function msEnterFromBottom:Description()
+	return "Cause layer to enter from the Bottom."
 end
 
-function msEnterFromLeft:Creator()
+function msEnterFromBottom:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msEnterFromLeft:UILabel()
-	return "Enter From Left ..."
+function msEnterFromBottom:UILabel()
+	return "Enter From Bottom ..."
 end
 
-function msEnterFromLeft:Run(moho)
+function msEnterFromBottom:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 	local layer = moho.layer
 	
 	msSmartAnimation:Init(moho)
-	msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.LEFT)
+	msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.BOTTOM)
 end
