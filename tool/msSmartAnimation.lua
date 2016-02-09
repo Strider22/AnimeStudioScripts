@@ -9,8 +9,8 @@ msSmartAnimation.resolveFrames = 17
 -- how many frames in close
 msSmartAnimation.closeFrames = 20
 -- how many frames in open
-msSmartAnimation.plopInResolveFrames = 13
-msSmartAnimation.plopInIngressFrames = 7
+msSmartAnimation.plopInResolveFrames = 15
+msSmartAnimation.plopInIngressFrames = 5
 -- what ratio of the total travel on ingress 
 msSmartAnimation.bounceScale = 1.03
 -- what frame should visiblity start at
