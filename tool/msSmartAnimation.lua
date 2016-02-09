@@ -9,7 +9,8 @@ msSmartAnimation.resolveFrames = 17
 -- how many frames in close
 msSmartAnimation.closeFrames = 20
 -- how many frames in open
-msSmartAnimation.openFrames = 20
+msSmartAnimation.plopInResolveFrames = 13
+msSmartAnimation.plopInIngressFrames = 7
 -- what ratio of the total travel on ingress 
 msSmartAnimation.bounceScale = 1.03
 -- what frame should visiblity start at
@@ -149,14 +150,14 @@ function msSmartAnimation:PlopIn(layer, frame)
 	local channel = layer.fScale
 	scale = channel:GetValue(frame)
 
-	self:VisibilityOff(layer,self.visibilityStart,frame - self.openFrames)
+	self:VisibilityOff(layer,self.visibilityStart,frame - self.plopInIngressFrames)
 
-	channel:SetValue(frame,scale)
-	channel:SetKeyInterp(frame, MOHO.INTERP_SMOOTH, 0, 0)	
+	channel:SetValue(frame + self.plopInResolveFrames,scale)
+	channel:SetKeyInterp(frame + self.plopInResolveFrames, MOHO.INTERP_SMOOTH, 0, 0)	
 	scale.x = self.minScale
 	scale.y = self.minScale
-	channel:SetValue(frame - self.openFrames,scale)
-	channel:SetKeyInterp(frame- self.openFrames,MOHO.INTERP_ELASTIC, 0 , 0.5)	
+	channel:SetValue(frame - self.plopInIngressFrames,scale)
+	channel:SetKeyInterp(frame- self.plopInIngressFrames,MOHO.INTERP_ELASTIC, 0 , 0.5)	
 end
 
 function msSmartAnimation:SetLocation(channel, frame, location, interp)
