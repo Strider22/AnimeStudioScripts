@@ -31,27 +31,6 @@ end
 -- **************************************************
 -- Recurring values
 -- **************************************************
-msSmartAnimationMaster.startFrame = 1
-msSmartAnimationMaster.endFrame = 50
--- how many liner frames when entering
-msSmartAnimationMaster.enterIngressFrames = 8
--- what ratio of the total travel on ingress
-msSmartAnimationMaster.enterOvershootScale = 1.03
--- how many elastic frames on enter
-msSmartAnimationMaster.enterResolveFrames = 17
-msSmartAnimationMaster.exitFrames = 20
--- how many frames in plopIn
-msSmartAnimationMaster.plopInIngressFrames = 5
-msSmartAnimationMaster.plopInResolveFrames = 15
-msSmartAnimationMaster.plopInScale = .5
--- how many frames in plopOut
-msSmartAnimationMaster.plopOutFrames = 20
-msSmartAnimationMaster.plopOutBounceCount = 2
-msSmartAnimationMaster.plopOutScale = .5
-
---how much further than the screen do we move the object
-msSmartAnimationMaster.borderScale = 1.6
-msSmartAnimationMaster.minScale = .02
 
 
 -- **************************************************
@@ -121,40 +100,41 @@ function msSmartAnimationMasterDialog:OnValidate()
 end
 
 function msSmartAnimationMasterDialog:UpdateWidgets()
-	self.frameOffset:SetValue(msSmartAnimationMaster.frameOffset)
-	self.skipToStart:SetValue(msSmartAnimationMaster.skipToStart)
-	self.randomize:SetValue(msSmartAnimationMaster.randomize)
-	self.accumulateOffsets:SetValue(msSmartAnimationMaster.accumulateOffsets)
-	self.copyToGroups:SetValue(msSmartAnimationMaster.copyToGroups)
-	self.offsetStartFrame:SetValue(self.moho.frame)
-    self..enterIngressFrames:SetValue(msSmartAnimationMaster.enterIngressFrames)
-    self..enterOvershootScale:SetValue(msSmartAnimationMaster.enterOvershootScale)
-    self..enterResolveFrames:SetValue(msSmartAnimationMaster.enterResolveFrames)
-    self..exitFrames:SetValue(msSmartAnimationMaster.exitFrames)
-    self..plopInIngressFrames:SetValue(msSmartAnimationMaster.plopInIngressFrames)
-    self..plopInResolveFrames:SetValue(msSmartAnimationMaster.plopInResolveFrames)
-    self..plopInScale:SetValue(msSmartAnimationMaster.plopInScale)
-    self..plopOutFrames:SetValue(msSmartAnimationMaster.plopOutFrames)
-    self..plopOutBounceCount:SetValue(msSmartAnimationMaster.plopOutBounceCount)
-    self..plopOutScale:SetValue(msSmartAnimationMaster.plopOutScale)
-    self..borderScale:SetValue(msSmartAnimationMaster.borderScale)
-    self..minScale:SetValue(msSmartAnimationMaster.minScale)
+	self.menu:SetChecked(MOHO.MSG_BASE, true)
+	self.startFrame:SetValue(self.moho.frame)
+	self.endFrame:SetValue(msSmartAnimation.endFrame)
+    self..enterIngressFrames:SetValue(msSmartAnimation.enterIngressFrames)
+    self..enterOvershootScale:SetValue(msSmartAnimation.enterOvershootScale)
+    self..enterResolveFrames:SetValue(msSmartAnimation.enterResolveFrames)
+    self..exitFrames:SetValue(msSmartAnimation.exitFrames)
+    self..plopInIngressFrames:SetValue(msSmartAnimation.plopInIngressFrames)
+    self..plopInResolveFrames:SetValue(msSmartAnimation.plopInResolveFrames)
+    self..plopInScale:SetValue(msSmartAnimation.plopInScale)
+    self..plopOutFrames:SetValue(msSmartAnimation.plopOutFrames)
+    self..plopOutBounceCount:SetValue(msSmartAnimation.plopOutBounceCount)
+    self..plopOutScale:SetValue(msSmartAnimation.plopOutScale)
+    self..borderScale:SetValue(msSmartAnimation.borderScale)
+    self..minScale:SetValue(msSmartAnimation.minScale)
 end
 
 
 function msSmartAnimationMasterDialog:OnOK()
-    msSmartAnimationMaster.enterIngressFrames = self.enterIngressFrames:FloatValue()
-    msSmartAnimationMaster.enterOvershootScale = self.enterOvershootScale:FloatValue()
-    msSmartAnimationMaster.enterResolveFrames = self.enterResolveFrames:FloatValue()
-    msSmartAnimationMaster.exitFrames = self.exitFrames:FloatValue()
-    msSmartAnimationMaster.plopInIngressFrames = self.plopInIngressFrames:FloatValue()
-    msSmartAnimationMaster.plopInResolveFrames = self.plopInResolveFrames:FloatValue()
-    msSmartAnimationMaster.plopInScale = self.plopInScale:FloatValue()
-    msSmartAnimationMaster.plopOutFrames = self.plopOutFrames:FloatValue()
-    msSmartAnimationMaster.plopOutBounceCount = self.plopOutBounceCount:FloatValue()
-    msSmartAnimationMaster.plopOutScale = self.plopOutScale:FloatValue()
-    msSmartAnimationMaster.borderScale = self.borderScale:FloatValue()
-    msSmartAnimationMaster.minScale = self.minScale:FloatValue()
+    msSmartAnimationMaster.action = self.menu:FirstChecked()
+	msSmartAnimation.startFrame = self.startFrame:FloatValue()
+	msSmartAnimation.endFrame = self.endFrame:FloatValue()
+    msSmartAnimation.enterIngressFrames = self.enterIngressFrames:FloatValue()
+    msSmartAnimation.enterOvershootScale = self.enterOvershootScale:FloatValue()
+    msSmartAnimation.enterResolveFrames = self.enterResolveFrames:FloatValue()
+    msSmartAnimation.exitFrames = self.exitFrames:FloatValue()
+    msSmartAnimation.plopInIngressFrames = self.plopInIngressFrames:FloatValue()
+    msSmartAnimation.plopInResolveFrames = self.plopInResolveFrames:FloatValue()
+    msSmartAnimation.plopInScale = self.plopInScale:FloatValue()
+    msSmartAnimation.plopOutFrames = self.plopOutFrames:FloatValue()
+    msSmartAnimation.plopOutBounceCount = self.plopOutBounceCount:FloatValue()
+    msSmartAnimation.plopOutScale = self.plopOutScale:FloatValue()
+    msSmartAnimation.borderScale = self.borderScale:FloatValue()
+    msSmartAnimation.minScale = self.minScale:FloatValue()
+
 end
 
 
@@ -189,6 +169,10 @@ function msSmartAnimationMaster:Run(moho)
 
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
+
+    if(self.action == 1) then
+        //Save
+    end
 
 
 	

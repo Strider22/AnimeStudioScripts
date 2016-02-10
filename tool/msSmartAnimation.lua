@@ -1,25 +1,30 @@
 msSmartAnimation = {}
 
---how much further than the screen do we move the object
-msSmartAnimation.borderScale = 1.6
--- how many liner frames in enter
-msSmartAnimation.enterIngresFrames = 8
+msSmartAnimation.startFrame = 10
+msSmartAnimation.endFrame = 50
+-- how many liner frames when entering
+msSmartAnimation.enterIngressFrames = 8
 -- what ratio of the total travel on ingress
 msSmartAnimation.enterOvershootScale = 1.03
 -- how many elastic frames on enter
 msSmartAnimation.enterResolveFrames = 17
--- how many frames in close
-msSmartAnimation.plopOutFrames = 20
--- how many frames in open
+msSmartAnimation.exitFrames = 20
+-- how many frames in plopIn
 msSmartAnimation.plopInIngressFrames = 5
 msSmartAnimation.plopInResolveFrames = 15
 msSmartAnimation.plopInScale = .5
+-- how many frames in plopOut
+msSmartAnimation.plopOutFrames = 20
+msSmartAnimation.plopOutBounceCount = 2
+msSmartAnimation.plopOutScale = .5
+
+--how much further than the screen do we move the object
+msSmartAnimation.borderScale = 1.6
+msSmartAnimation.minScale = .02
+
 -- what frame should visiblity start at
 msSmartAnimation.visibilityStart = 1
 msSmartAnimation.aspectRatio = 1
-msSmartAnimation.minScale = .02
-msSmartAnimation.plopOutBounceCount = 2
-msSmartAnimation.plopOutScale = .5
 
 -- Enter and Exit Directions
 msSmartAnimation.LEFT = 1
@@ -123,7 +128,7 @@ function msSmartAnimation:Exit(layer, frame, direction)
 
 	layer.fVisibility:SetValue(frame, false)
 
-	self:SetLocation(channel, frame -  self.enterResolveFrames, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, frame -  self.exitFrames, location, MOHO.INTERP_SMOOTH)
 	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
 		location.x = finalValue
 	else 
