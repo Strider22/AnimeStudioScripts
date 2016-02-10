@@ -3,21 +3,23 @@ msSmartAnimation = {}
 --how much further than the screen do we move the object
 msSmartAnimation.borderScale = 1.6
 -- how many liner frames in enter
-msSmartAnimation.ingressFrames = 8
+msSmartAnimation.enterIngresFrames = 8
+-- what ratio of the total travel on ingress
+msSmartAnimation.enterOvershootScale = 1.03
 -- how many elastic frames on enter
-msSmartAnimation.resolveFrames = 17
+msSmartAnimation.enterResolveFrames = 17
 -- how many frames in close
-msSmartAnimation.closeFrames = 20
+msSmartAnimation.plopOutFrames = 20
 -- how many frames in open
-msSmartAnimation.plopInResolveFrames = 15
 msSmartAnimation.plopInIngressFrames = 5
--- what ratio of the total travel on ingress 
-msSmartAnimation.bounceScale = 1.03
+msSmartAnimation.plopInResolveFrames = 15
+msSmartAnimation.plopInScale = .5
 -- what frame should visiblity start at
 msSmartAnimation.visibilityStart = 1
 msSmartAnimation.aspectRatio = 1
 msSmartAnimation.minScale = .02
-msSmartAnimation.closeBounceCount = 2
+msSmartAnimation.plopOutBounceCount = 2
+msSmartAnimation.plopOutScale = .5
 
 -- Enter and Exit Directions
 msSmartAnimation.LEFT = 1
@@ -73,10 +75,10 @@ function msSmartAnimation:Enter(layer, visibilityOffFrame, frame, direction)
 	
 	
 	-- VISIBILITY
-	self:VisibilityOff(layer, visibilityOffFrame, frame - self.ingressFrames) 
+	self:VisibilityOff(layer, visibilityOffFrame, frame - self.enterIngresFrames)
 
 	-- FINAL POSITION
-	self:SetLocation(channel, frame + self.resolveFrames, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, frame + self.enterResolveFrames, location, MOHO.INTERP_SMOOTH)
 
 	-- BOUNCE POSITION
 	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
@@ -92,7 +94,7 @@ function msSmartAnimation:Enter(layer, visibilityOffFrame, frame, direction)
 	else 
 		location.y = startValue
 	end
-	self:SetLocation(channel, frame - self.ingressFrames, location, MOHO.INTERP_LINEAR)
+	self:SetLocation(channel, frame - self.enterIngresFrames, location, MOHO.INTERP_LINEAR)
 end
 
 function msSmartAnimation:Exit(layer, frame, direction)
@@ -121,7 +123,7 @@ function msSmartAnimation:Exit(layer, frame, direction)
 
 	layer.fVisibility:SetValue(frame, false)
 
-	self:SetLocation(channel, frame -  self.resolveFrames, location, MOHO.INTERP_SMOOTH)
+	self:SetLocation(channel, frame -  self.enterResolveFrames, location, MOHO.INTERP_SMOOTH)
 	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
 		location.x = finalValue
 	else 
@@ -137,8 +139,8 @@ function msSmartAnimation:PlopOut(layer, frame)
 
 	layer.fVisibility:SetValue(frame, false)
 
-	channel:SetValue(frame - self.closeFrames,scale)
-	channel:SetKeyInterp(frame  - self.closeFrames,MOHO.INTERP_ELASTIC, 10000 + msSmartAnimation.closeBounceCount, 0.5)	
+	channel:SetValue(frame - self.plopOutFrames,scale)
+	channel:SetKeyInterp(frame  - self.plopOutFrames,MOHO.INTERP_ELASTIC, 10000 + msSmartAnimation.plopOutBounceCount, 0.5)
 	scale.x = self.minScale
 	scale.y = self.minScale
 	channel:SetValue(frame,scale)

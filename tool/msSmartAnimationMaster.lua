@@ -36,7 +36,7 @@ msSmartAnimationMaster.endFrame = 50
 -- how many liner frames when entering
 msSmartAnimationMaster.enterIngressFrames = 8
 -- what ratio of the total travel on ingress
-msSmartAnimationMaster.enterIngressScale = 1.03
+msSmartAnimationMaster.enterOvershootScale = 1.03
 -- how many elastic frames on enter
 msSmartAnimationMaster.enterResolveFrames = 17
 msSmartAnimationMaster.exitFrames = 20
@@ -69,7 +69,7 @@ function msSmartAnimationMasterDialog:new(moho)
 			l:AddChild(LM.GUI.StaticText("Start Frame"),LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("End Frame"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("enterIngressFrames"),LM.GUI.ALIGN_LEFT)
-            l:AddChild(LM.GUI.StaticText("enterIngressScale"),LM.GUI.ALIGN_LEFT)
+            l:AddChild(LM.GUI.StaticText("enterOvershootScale"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("enterResolveFrames"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("exitFrames"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("plopInIngressFrames"),LM.GUI.ALIGN_LEFT)
@@ -89,8 +89,8 @@ function msSmartAnimationMasterDialog:new(moho)
 			l:AddChild(d.endFrame)
             d.enterIngressFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             lAddChild(d.enterIngressFrames)
-            d.enterIngressScale = 1.0LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
-            lAddChild(d.enterIngressScale)
+            d.enterOvershootScale = 1.0LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            lAddChild(d.enterOvershootScale)
             d.enterResolveFrames = 1LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             lAddChild(d.enterResolveFrames)
             d.exitFrames = 2LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
@@ -128,7 +128,7 @@ function msSmartAnimationMasterDialog:UpdateWidgets()
 	self.copyToGroups:SetValue(msSmartAnimationMaster.copyToGroups)
 	self.offsetStartFrame:SetValue(self.moho.frame)
     self..enterIngressFrames:SetValue(msSmartAnimationMaster.enterIngressFrames)
-    self..enterIngressScale:SetValue(msSmartAnimationMaster.enterIngressScale)
+    self..enterOvershootScale:SetValue(msSmartAnimationMaster.enterOvershootScale)
     self..enterResolveFrames:SetValue(msSmartAnimationMaster.enterResolveFrames)
     self..exitFrames:SetValue(msSmartAnimationMaster.exitFrames)
     self..plopInIngressFrames:SetValue(msSmartAnimationMaster.plopInIngressFrames)
@@ -143,15 +143,8 @@ end
 
 
 function msSmartAnimationMasterDialog:OnOK()
-	msSmartAnimationMaster.srcLayerName = self.menu:FirstCheckedLabel()
-	msSmartAnimationMaster.frameOffset = self.frameOffset:FloatValue()
-	msSmartAnimationMaster.skipToStart = self.skipToStart:Value()
-	msSmartAnimationMaster.randomize = self.randomize:Value()
-	msSmartAnimationMaster.accumulateOffsets = self.accumulateOffsets:Value()
-	msSmartAnimationMaster.copyToGroups = self.copyToGroups:Value()
-	msSmartAnimationMaster.offsetStartFrame = self.offsetStartFrame:FloatValue()
     msSmartAnimationMaster.enterIngressFrames = self.enterIngressFrames:FloatValue()
-    msSmartAnimationMaster.enterIngressScale = self.enterIngressScale:FloatValue()
+    msSmartAnimationMaster.enterOvershootScale = self.enterOvershootScale:FloatValue()
     msSmartAnimationMaster.enterResolveFrames = self.enterResolveFrames:FloatValue()
     msSmartAnimationMaster.exitFrames = self.exitFrames:FloatValue()
     msSmartAnimationMaster.plopInIngressFrames = self.plopInIngressFrames:FloatValue()
@@ -196,6 +189,7 @@ function msSmartAnimationMaster:Run(moho)
 
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
+
 
 	
 end
