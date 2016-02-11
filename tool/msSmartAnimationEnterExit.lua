@@ -70,17 +70,17 @@ function msSmartAnimationEnterExitDialog:OnValidate()
 end
 
 function msSmartAnimationEnterExitDialog:UpdateWidgets()
-    self.enterAction:SetValue(msSmartAnimationEnterExit.enterAction)
-    self.exitAction:SetValue(msSmartAnimationEnterExit.exitAction)
+	self.enterMenu:SetChecked(MOHO.MSG_BASE, true)
+	self.exitMenu:SetChecked(MOHO.MSG_BASE, true)
     self.startFrame:SetValue(msSmartAnimationEnterExit.startFrame)
     self.endFrame:SetValue(msSmartAnimationEnterExit.endFrame)
 end
 
 
 function msSmartAnimationEnterExitDialog:OnOK()
-    msSmartAnimationEnterExit.enterAction = self.enterAction:FloatValue()
-    msSmartAnimationEnterExit.exitAction = SetValue(self.exitAction:FloatValue()
-    msSmartAnimationEnterExit.startFrame = SetValue(self.startFrame:FloatValue()
+    msSmartAnimationEnterExit.enterAction = self.enterMenu:FirstChecked()
+    msSmartAnimationEnterExit.exitAction = self.exitMenu:FirstChecked()
+    msSmartAnimationEnterExit.startFrame = self.startFrame:FloatValue()
     msSmartAnimationEnterExit.endFrame = self.endFrame:FloatValue()
 end
 

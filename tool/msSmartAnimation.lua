@@ -3,7 +3,7 @@ msSmartAnimation = {}
 msSmartAnimation.startFrame = 10
 msSmartAnimation.endFrame = 50
 -- how many liner frames when entering
-msSmartAnimation.enterIngressFrames = 8
+msSmartAnimation.enterIngresFrames = 8
 -- what ratio of the total travel on ingress
 msSmartAnimation.enterOvershootScale = 1.03
 -- how many elastic frames on enter
@@ -40,11 +40,11 @@ function msSmartAnimation:Init(moho)
 	self.aspectRatio = moho.document:AspectRatio()
 end
 
--- function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, bounceScale, visibilityStart, closeFrames, moho)
+-- function msSmartAnimation:SetDefaults(ingressFrames, resolveFrames, overshootScale, visibilityStart, closeFrames, moho)
 	-- self:Init(moho)
 	-- self.ingressFrames = ingressFrames
 	-- self.resolveFrames = resolveFrames
-	-- self.bounceScale = bounceScale
+	-- self.overshootScale = overshootScale
 	-- self.closeFrames = closeFrames
 	-- self.visibilityStart = visibilityStart
 -- end
@@ -87,9 +87,9 @@ function msSmartAnimation:Enter(layer, visibilityOffFrame, frame, direction)
 
 	-- BOUNCE POSITION
 	if((direction == msSmartAnimation.LEFT) or (direction == msSmartAnimation.RIGHT))then
-		location.x = startValue + (travelDistance * self.bounceScale)
+		location.x = startValue + (travelDistance * self.enterOvershootScale)
 	else 
-		location.y = startValue + (travelDistance * self.bounceScale)
+		location.y = startValue + (travelDistance * self.enterOvershootScale)
 	end
 	self:SetLocation(channel, frame, location, MOHO.INTERP_ELASTIC)
 
