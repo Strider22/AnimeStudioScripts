@@ -1,6 +1,7 @@
 ScriptName = "msSmartAnimationMaster"
 msSmartAnimationMaster = {}
 msSmartAnimationMaster.BASE_STR = 2530
+msSmartAnimationMaster.action = 0
 
 -- **************************************************
 -- This information is displayed in help | About scripts ...
@@ -45,9 +46,9 @@ function msSmartAnimationMasterDialog:new(moho)
 	l:PushH(LM.GUI.ALIGN_LEFT)
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			l:AddChild(LM.GUI.StaticText("Action"),LM.GUI.ALIGN_LEFT)
-			l:AddChild(LM.GUI.StaticText("Start Frame"),LM.GUI.ALIGN_LEFT)
-			l:AddChild(LM.GUI.StaticText("End Frame"),LM.GUI.ALIGN_LEFT)
-			l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
+			-- l:AddChild(LM.GUI.StaticText("Start Frame"),LM.GUI.ALIGN_LEFT)
+			-- l:AddChild(LM.GUI.StaticText("End Frame"),LM.GUI.ALIGN_LEFT)
+			-- l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
             l:AddChild(LM.GUI.StaticText("enterIngresFrames"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("enterResolveFrames"),LM.GUI.ALIGN_LEFT)
             l:AddChild(LM.GUI.StaticText("enterOvershootScale"),LM.GUI.ALIGN_LEFT)
@@ -67,16 +68,16 @@ function msSmartAnimationMasterDialog:new(moho)
 		l:Pop()
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			d.menu = self:CreateDropDownMenu(moho, l, "Action")
-			d.startFrame = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
-			l:AddChild(d.startFrame)
-			d.endFrame = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
-			l:AddChild(d.endFrame)
-			l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
+			-- d.startFrame = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+			-- l:AddChild(d.startFrame)
+			-- d.endFrame = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+			-- l:AddChild(d.endFrame)
+			-- l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
             d.enterIngresFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             l:AddChild(d.enterIngresFrames)
             d.enterResolveFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             l:AddChild(d.enterResolveFrames)
-            d.enterOvershootScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            d.enterOvershootScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
             l:AddChild(d.enterOvershootScale)
 			l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
             d.exitFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
@@ -86,19 +87,19 @@ function msSmartAnimationMasterDialog:new(moho)
             l:AddChild(d.plopInIngressFrames)
             d.plopInResolveFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             l:AddChild(d.plopInResolveFrames)
-            d.plopInScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            d.plopInScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
             l:AddChild(d.plopInScale)
 			l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
             d.plopOutFrames = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             l:AddChild(d.plopOutFrames)
             d.plopOutBounceCount = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
             l:AddChild(d.plopOutBounceCount)
-            d.plopOutScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            d.plopOutScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
             l:AddChild(d.plopOutScale)
 			l:AddChild(LM.GUI.Divider(false), LM.GUI.ALIGN_FILL)
-            d.borderScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            d.borderScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
             l:AddChild(d.borderScale)
-            d.minScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_UINT)
+            d.minScale = LM.GUI.TextControl(0, "0.0000", 0, LM.GUI.FIELD_FLOAT)
             l:AddChild(d.minScale)
 		l:Pop()
 	l:Pop()
@@ -110,9 +111,9 @@ function msSmartAnimationMasterDialog:OnValidate()
 end
 
 function msSmartAnimationMasterDialog:UpdateWidgets()
-	self.menu:SetChecked(MOHO.MSG_BASE, true)
-	self.startFrame:SetValue(self.moho.frame)
-	self.endFrame:SetValue(msSmartAnimation.endFrame)
+	self.menu:SetChecked(MOHO.MSG_BASE + msSmartAnimationMaster.action, true)
+	-- self.startFrame:SetValue(self.moho.frame)
+	-- self.endFrame:SetValue(msSmartAnimation.endFrame)
     self.enterIngresFrames:SetValue(msSmartAnimation.enterIngresFrames)
     self.enterOvershootScale:SetValue(msSmartAnimation.enterOvershootScale)
     self.enterResolveFrames:SetValue(msSmartAnimation.enterResolveFrames)
@@ -130,8 +131,8 @@ end
 
 function msSmartAnimationMasterDialog:OnOK()
     msSmartAnimationMaster.action = self.menu:FirstChecked()
-	msSmartAnimation.startFrame = self.startFrame:FloatValue()
-	msSmartAnimation.endFrame = self.endFrame:FloatValue()
+	-- msSmartAnimation.startFrame = self.startFrame:FloatValue()
+	-- msSmartAnimation.endFrame = self.endFrame:FloatValue()
     msSmartAnimation.enterIngresFrames = self.enterIngresFrames:FloatValue()
     msSmartAnimation.enterOvershootScale = self.enterOvershootScale:FloatValue()
     msSmartAnimation.enterResolveFrames = self.enterResolveFrames:FloatValue()
@@ -151,20 +152,20 @@ end
 function msSmartAnimationMasterDialog:CreateDropDownMenu(moho, layout, title)
 	local menu = LM.GUI.Menu(title)
 
-	menu:AddItem("SAVE", 0, MOHO.MSG_BASE)
-	menu:AddItem("ENTER LEFT", 0, MOHO.MSG_BASE +1)
-	menu:AddItem("ENTER RIGHT", 0, MOHO.MSG_BASE + 2)
-	menu:AddItem("ENTER TOP", 0, MOHO.MSG_BASE + 3)
-	menu:AddItem("ENTER BOTTOM", 0, MOHO.MSG_BASE + 4)
-	menu:AddItem("EXIT LEFT", 0, MOHO.MSG_BASE + 5)
-	menu:AddItem("EXIT RIGHT", 0, MOHO.MSG_BASE + 6)
-	menu:AddItem("EXIT TOP", 0, MOHO.MSG_BASE + 7)
-	menu:AddItem("EXIT BOTTOM", 0, MOHO.MSG_BASE + 8)
-	menu:AddItem("PLOP IN", 0, MOHO.MSG_BASE + 9)
-	menu:AddItem("PLOP OUT", 0, MOHO.MSG_BASE + 10)
+	menu:AddItem("ENTER LEFT", 0, MOHO.MSG_BASE +0)
+	menu:AddItem("ENTER RIGHT", 0, MOHO.MSG_BASE + 1)
+	menu:AddItem("ENTER TOP", 0, MOHO.MSG_BASE + 2)
+	menu:AddItem("ENTER BOTTOM", 0, MOHO.MSG_BASE + 3)
+	menu:AddItem("EXIT LEFT", 0, MOHO.MSG_BASE + 4)
+	menu:AddItem("EXIT RIGHT", 0, MOHO.MSG_BASE + 5)
+	menu:AddItem("EXIT TOP", 0, MOHO.MSG_BASE + 6)
+	menu:AddItem("EXIT BOTTOM", 0, MOHO.MSG_BASE + 7)
+	menu:AddItem("PLOP IN", 0, MOHO.MSG_BASE + 8)
+	menu:AddItem("PLOP OUT", 0, MOHO.MSG_BASE + 9)
+	menu:AddItem("SAVE", 0, MOHO.MSG_BASE + 10)
 
 
-	menu:SetChecked(MOHO.MSG_BASE, true)
+	-- menu:SetChecked(MOHO.MSG_BASE, true)
 	popup = LM.GUI.PopupMenu(256, true)
 	popup:SetMenu(menu)
 	layout:AddChild(popup)
@@ -173,6 +174,7 @@ end
 
 function msSmartAnimationMaster:Run(moho)
 	local dlog = msSmartAnimationMasterDialog:new(moho)
+	local layer = moho.layer
 	if (dlog:DoModal() == LM.GUI.MSG_CANCEL) then
 		return
 	end
@@ -180,10 +182,28 @@ function msSmartAnimationMaster:Run(moho)
 	moho.document:PrepUndo(moho.layer)
 	moho.document:SetDirty()
 
-    if(self.action == 1) then
-        -- //Save
+	msSmartAnimation:Init(moho)
+    if(self.action == 0) then
+		msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.LEFT)
+    elseif(self.action == 1) then
+		msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.RIGHT)
+    elseif(self.action == 2) then
+		msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.TOP)
+    elseif(self.action == 3) then
+		msSmartAnimation:Enter(layer, 1, moho.frame, msSmartAnimation.BOTTOM)
+    elseif(self.action == 4) then
+		msSmartAnimation:Exit(layer, moho.frame, msSmartAnimation.LEFT)
+    elseif(self.action == 5) then
+		msSmartAnimation:Exit(layer, moho.frame, msSmartAnimation.RIGHT)
+    elseif(self.action == 6) then
+		msSmartAnimation:Exit(layer, moho.frame, msSmartAnimation.TOP)
+    elseif(self.action == 7) then
+		msSmartAnimation:Exit(layer, moho.frame, msSmartAnimation.BOTTOM)
+    elseif(self.action == 8) then
+		msSmartAnimation:PlopIn(layer, moho.frame)
+    elseif(self.action == 9) then
+		msSmartAnimation:PlopOut(layer, moho.frame)
     end
-
 
 	
 end
