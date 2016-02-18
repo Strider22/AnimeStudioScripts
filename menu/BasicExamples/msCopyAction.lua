@@ -14,7 +14,7 @@ function msCopyAction:Version()
 end
 
 function msCopyAction:Description()
-	return MOHO.Localize("/Scripts/Menu/MinimalScript/Description=Removes transform from group and applies it to sub layers.")
+	return "Mainly a test program. Copies one action and inserts it into another. Right now it just copies head turn to quick turn"
 end
 
 function msCopyAction:Creator()
