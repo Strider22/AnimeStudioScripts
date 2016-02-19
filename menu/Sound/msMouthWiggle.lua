@@ -62,11 +62,9 @@ msMouthWiggle.MBPlowest = false
 local msMouthWiggleDialog = {}
 
 function msMouthWiggleDialog:new(moho)
-	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/MouthWiggle/Title=Mouth Wiggle"), msMouthWiggleDialog)
-	local layout = dialog:GetLayout()
+	local dialog, layout = msDialog:SimpleDialog("Mouth Wiggle", msMouthWiggleDialog)
 
 	msEditSpan:Init(dialog,mouthWiggle)
-	msDialog:Init("/Scripts/Menu/MouthWiggle/", dialog, layout)
 
 	dialog.moho = moho
 
@@ -77,21 +75,21 @@ function msMouthWiggleDialog:new(moho)
 		-- add labels
 		layout:PushV()
 			-- Select the audio layer to use
-			msDialog:AddText("AudioLayer", "Audio layer:")
+			msDialog:AddText("Audio layer:")
 			-- How much wiggle do you ignore? 
-			msDialog:AddText("Tolerance", "Tolerance Percentage (.005 .05)")
+			msDialog:AddText("Tolerance Percentage (.005 .05)")
 			-- Which style of interpolation will you use
-			msDialog:AddText("InterpStyle", "Interpolation Style:")
+			msDialog:AddText("Interpolation Style:")
 			-- Values for determining what the actual mouth values will be
 			-- used to be difficult to determine for multiple voices, because
 			-- the value was not based on local of the span being edited. So 
 			-- if a soft voice was mixed with a loud voice, the soft voice would
 			-- not have any mouth values
-			msDialog:AddText("AI", "AI level (.03 .3)")
-			msDialog:AddText("E", "E level (.01 .1)")
-			msDialog:AddText("etc", "etc level (.005 .05)")
+			msDialog:AddText("AI level (.03 .3)")
+			msDialog:AddText("E level (.01 .1)")
+			msDialog:AddText("etc level (.005 .05)")
 			-- step size. Should almost always be one. 
-			msDialog:AddText("StepSize", "Step size")
+			msDialog:AddText("Step size")
 		layout:Pop()
 		-- add controls to the right
 		layout:PushV()

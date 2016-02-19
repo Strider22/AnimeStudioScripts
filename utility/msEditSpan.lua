@@ -18,8 +18,8 @@ end
 function msEditSpan:AddComponents(layout)
 	layout:PushH(LM.GUI.ALIGN_LEFT)
 		layout:PushV()			
-			msDialog:AddText("StartFrame", "Start frame")
-			msDialog:AddText("EndFrame", "End Frame")
+			msDialog:AddText("Start frame")
+			msDialog:AddText("End Frame")
 		layout:Pop()
 		layout:PushV()
 			-- the 0.0000 is the initial value, but it's acually used for 

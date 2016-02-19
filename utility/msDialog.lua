@@ -13,11 +13,15 @@ function msDialog:Display(moho, dialogType)
 	end
 end
 
-function msDialog:Init(location, dialog, layout)
+function msDialog:SimpleDialog(title, subclass)
+	self.dialog = LM.GUI.SimpleDialog(title, subclass)
+	self.layout = self.dialog:GetLayout()
+	return self.dialog, self.layout
+end
+
+function msDialog:SetLocalizationLocation(location)
 	msHelper:Debug("Init location " ..location)
 	self.location = location
-	self.dialog = dialog
-	self.layout = layout
 end
 
 function msDialog:Localize(value, label)
@@ -32,9 +36,8 @@ function msDialog:Control(componentFunction, value, label)
 	return control
 end
 
-function msDialog:AddText(value, label)
-	self.layout:AddChild(LM.GUI.StaticText(self:Localize(value, label)),
-		self.alignment)
+function msDialog:AddText(label)
+	self.layout:AddChild(LM.GUI.StaticText(label), self.alignment)
 end
 
 function msDialog:AddTextControl(width, text, message, type)

@@ -51,8 +51,7 @@ msPuppetDance.frameAdjust = 0
 local msPuppetDanceDialog = {}
 
 function msPuppetDanceDialog:new(moho)
-	local d = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/PuppetDance/Title=Layer Audio Wiggle"), msPuppetDanceDialog)
-	local l = d:GetLayout()
+	local d, l = msDialog:SimpleDialog("Layer Audio Wiggle", msPuppedDanceDialog)
 
 	-- msHelper.debug = true
 	msEditSpan:Init(d,msPuppetDance)
@@ -63,10 +62,10 @@ function msPuppetDanceDialog:new(moho)
 
 	l:PushH(LM.GUI.ALIGN_CENTER)
 		l:PushV()
-			msDialog:AddText("SelectAudioLayer", "Select audio layer")
-			msDialog:AddText("MaxOffset", "Multiplier")
-			msDialog:AddText("Angle", "Angle")
-			msDialog:AddText("FrameStep", "Frame step")
+			msDialog:AddText("Select audio layer")
+			msDialog:AddText("Multiplier")
+			msDialog:AddText("Angle")
+			msDialog:AddText("Frame step")
 		l:Pop()
 		l:PushV()
 			d.menu = msDialog:AudioDropdown(moho, "SelectAudioLayer", 

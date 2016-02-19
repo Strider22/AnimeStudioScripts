@@ -1,7 +1,7 @@
 Files
 =====
-msLipSyncReadme.txt - this file
-msLipSync.lua - the main code for the lipSync script
+Tool\msLipSync.lua - the main code for the lipSync script
+Utility\msLipSyncReadme.txt - this file
 Utility\lipSync.txt - bone information for lip sync
 Utility\msDialog.lua - dialog utility routines
 Utility\msHelper.lua - debugging routines
@@ -9,8 +9,10 @@ Utility\msPhonemes.lua - routines for breaking text into phonemes
 
 Installation
 ============
-- Copy msLipSync.lua into the script\menu\ directory of your choice. 
+- Copy msLipSync.lua into the script\tool\ directory of your choice.
 - Copy the Utility\*.* files into the script\utility directory
+It's recommended that you copy these files to the script directory in your user
+content location.
 
 Functionality
 =============

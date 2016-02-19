@@ -53,12 +53,10 @@ local msLipSyncDialog = {}
 function msLipSyncDialog:new(moho)
 	msHelper:Debug("in sync dialog ")
 
-	local dialog = LM.GUI.SimpleDialog(MOHO.Localize("/Scripts/Menu/LipSync/Title=Lip Sync"), msLipSyncDialog)
-	local layout = dialog:GetLayout()
-
 	--the place where things should be
 	--print("userappdir " .. moho:UserAppDir())
-	msDialog:Init("/Scripts/Menu/LipSync/", dialog, layout)
+
+	local dialog, layout = msDialog:SimpleDialog("Lip Sync", msLipSyncDialog)
 
 	dialog.moho = moho
     msLipSync.myPhonemes = msPhonemes.new()
@@ -81,13 +79,13 @@ function msLipSyncDialog:new(moho)
 		msDialog:MakePopup(dialog.syncMenu)
      end		
 	
---print("first checked label " .. dialog.syncMenu:FirstCheckedLabel())
+    --print("first checked label " .. dialog.syncMenu:FirstCheckedLabel())
 	layout:PushH(LM.GUI.ALIGN_CENTER)
 		-- add labels
 		layout:PushV()
-			msDialog:AddText("Start Frame", "Start Frame:")
-			msDialog:AddText("End Frame", "End Frame:")
-			msDialog:AddText("Text", "Text String:")
+			msDialog:AddText("Start Frame:")
+			msDialog:AddText("End Frame:")
+			msDialog:AddText("Text String:")
 	
 	-- Should the rest mouth be put at the end of the audio section
 	dialog.phonetic = msDialog:Control(LM.GUI.CheckBox, "Phonetic","Phonetic spelling")
@@ -178,14 +176,15 @@ end
 
 
 function msLipSync:SetMouthValues(phonemeList,type)
-	local frame = self.startFrame
+	local frame = self.startFrame + self.frameAdjust
 	local numBones = 0
 	local lastMouth = 0
 	if type ~= "switch" then
 		numBones = self.myPhonemes.numBones()
 		msHelper:Debug("numBones " .. numBones)
 	end
-    msHelper:Debug("in setMouthValues type is " .. type)
+    msHelper:Debug("in setMouthValues")
+	msHelper:Debug("type is " .. type)
 	for k,v in ipairs(phonemeList) do
 		local mouth = v[1]
 		msHelper:Debug("mouth is  " .. mouth)
@@ -229,6 +228,7 @@ function msLipSync:Run(moho)
 	msHelper:Debug("in run before dialog  ")
 	msDialog:Display(moho, msLipSyncDialog)
 	msHelper:Debug("in run after dialog  ")
+	self.frameAdjust = moho.layer:TotalTimingOffset();
 	
 	if(msDialog.cancelled) then 
 		msHelper:Debug("msDialog is cancelled" )
@@ -253,7 +253,8 @@ function msLipSync:Run(moho)
 		self:SetMouthValues(phonemeList,"switch")
 	else 
 		self.skel = moho:Skeleton()
-		if (skel == nil) then
+		if (self.skel == nil) then
+			msHelper:Debug("self.skel is nil")
 			return
 		end
 		self:SetMouthValues(phonemeList,"bone")
