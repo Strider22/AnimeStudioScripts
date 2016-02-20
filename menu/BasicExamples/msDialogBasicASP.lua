@@ -9,7 +9,7 @@ end
 msDialogBasicASP.BASE_STR = 2540
 
 function msDialogBasicASP:Name()
-	return "msDialogBasicASP"
+	return "DialogBasicASP"
 end
 
 function msDialogBasicASP:Version()
@@ -21,7 +21,7 @@ function msDialogBasicASP:Creator()
 end
 
 function msDialogBasicASP:UILabel()
-	return(msDialogBasicASP ..."))
+	return "DialogBasicASP ..."
 end
 
 -- **************************************************
@@ -39,8 +39,8 @@ msDialogBasicASP.skipToStart = true
 local msDialogBasicASPDialog = {}
 
 
-function msDialogBasicASP:new(moho)
-	local d = LM.GUI.SimpleDialog("DialogBasicASP", msDialogBasicASP)
+function msDialogBasicASPDialog:new(moho)
+	local d = LM.GUI.SimpleDialog("DialogBasicASP", msDialogBasicASPDialog)
 	local l = d:GetLayout()
 	d.moho = moho
 	l:PushH(LM.GUI.ALIGN_LEFT)
@@ -61,25 +61,25 @@ function msDialogBasicASP:new(moho)
 	return d
 end
 
-function msDialogBasicASP:OnValidate()
+function msDialogBasicASPDialog:OnValidate()
 	return true
 end
 
-function msDialogBasicASP:UpdateWidgets()
-	self.menu:SetChecked(MOHO.MSG_BASE + msCopyAnimation.srcLayer, true)
+function msDialogBasicASPDialog:UpdateWidgets()
+	self.menu:SetChecked(MOHO.MSG_BASE + msDialogBasicASP.srcLayer, true)
 	self.offsetStartFrame:SetValue(self.moho.frame)
-	self.skipToStart:SetValue(msCopyAnimation.skipToStart)
+	self.skipToStart:SetValue(msDialogBasicASP.skipToStart)
 end
 
 
-function msDialogBasicASP:OnOK()
-	msCopyAnimation.srcLayer = self.menu:FirstCheckedLabel()
-	msCopyAnimation.offsetStartFrame = self.offsetStartFrame:FloatValue()
-	msCopyAnimation.skipToStart = self.skipToStart:Value()
+function msDialogBasicASPDialog:OnOK()
+	msDialogBasicASP.srcLayer = self.menu:FirstChecked()
+	msDialogBasicASP.offsetStartFrame = self.offsetStartFrame:FloatValue()
+	msDialogBasicASP.skipToStart = self.skipToStart:Value()
 end
 
 
-function msDialogBasicASP:CreateDropDownMenu(moho, layout, title)
+function msDialogBasicASPDialog:CreateDropDownMenu(moho, layout, title)
 	local menu = LM.GUI.Menu(title)
 
 	menu:AddItem("First Value", 0, MOHO.MSG_BASE + 0)

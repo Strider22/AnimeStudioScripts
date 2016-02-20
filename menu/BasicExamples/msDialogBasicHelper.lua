@@ -21,7 +21,7 @@ function msDialogBasicHelper:Creator()
 end
 
 function msDialogBasicHelper:UILabel()
-	return(msDialog:Localize("DialogExample","DialogExample ..."))
+	return "DialogBasicHelper ..."
 end
 
 -- **************************************************
@@ -39,46 +39,42 @@ msDialogBasicHelper.skipToStart = true
 local msDialogBasicHelperDialog = {}
 
 
-function msDialogBasicHelper:new(moho)
-	local d, l = msDialog:SimpleDialog("DialogBasicHelper", msDialogBasicHelper)
+function msDialogBasicHelperDialog:new(moho)
+	local self, l = msDialog:SimpleDialog("DialogBasicHelper", self)
 
-	d.moho = moho
+	self.moho = moho
 	l:PushH(LM.GUI.ALIGN_LEFT)
 		l:PushV(LM.GUI.ALIGN_LEFT)
 			msDialog:AddText("Select Base Animation Layer")
 			msDialog:AddText("Offset Start frame")
 		l:Pop()
 		l:PushV(LM.GUI.ALIGN_LEFT)
-			d.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
-			d.offsetStartFrame = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
+			self.menu = self:CreateDropDownMenu(moho, l, "Select Layer")
+			self.offsetStartFrame = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
 		l:Pop()
 	l:Pop()
 
-    d.skipToStart = LM.GUI.CheckBox("Skip to Start Frame")
-	l:AddChild(d.skipToStart,LM.GUI.ALIGN_LEFT)
+    self.skipToStart = LM.GUI.CheckBox("Skip to Start Frame")
+	l:AddChild(self.skipToStart,LM.GUI.ALIGN_LEFT)
 
-	return d
+	return self
 end
 
-function msDialogBasicHelper:OnValidate()
-	return true
-end
-
-function msDialogBasicHelper:UpdateWidgets()
-	self.menu:SetChecked(MOHO.MSG_BASE + msCopyAnimation.srcLayer, true)
+function msDialogBasicHelperDialog:UpdateWidgets()
+	self.menu:SetChecked(MOHO.MSG_BASE + msDialogBasicHelper.srcLayer, true)
 	self.offsetStartFrame:SetValue(self.moho.frame)
-	self.skipToStart:SetValue(msCopyAnimation.skipToStart)
+	self.skipToStart:SetValue(msDialogBasicHelper.skipToStart)
 end
 
 
-function msDialogBasicHelper:OnOK()
-	msCopyAnimation.srcLayer = self.menu:FirstCheckedLabel()
-	msCopyAnimation.offsetStartFrame = self.offsetStartFrame:FloatValue()
-	msCopyAnimation.skipToStart = self.skipToStart:Value()
+function msDialogBasicHelperDialog:OnOK()
+	msDialogBasicHelper.srcLayer = self.menu:FirstChecked()
+	msDialogBasicHelper.offsetStartFrame = self.offsetStartFrame:FloatValue()
+	msDialogBasicHelper.skipToStart = self.skipToStart:Value()
 end
 
 
-function msDialogBasicHelper:CreateDropDownMenu(moho, layout, title)
+function msDialogBasicHelperDialog:CreateDropDownMenu(moho, layout, title)
 	local menu = LM.GUI.Menu(title)
 
 	menu:AddItem("First Value", 0, MOHO.MSG_BASE + 0)
@@ -97,10 +93,8 @@ end
 -- **************************************************
 
 function msDialogBasicHelper:Run(moho)
-	local dialog = msDialogBasicHelperDialog:new(moho)
-	if (dialog:DoModal() == LM.GUI.MSG_CANCEL) then
-		return
-	end
+
+	msDialog:Display(moho, msDialogBasicHelperDialog)
 
 	moho.document:SetDirty()
 	moho.document:PrepUndo(moho.layer)

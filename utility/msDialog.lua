@@ -40,6 +40,16 @@ function msDialog:AddText(label)
 	self.layout:AddChild(LM.GUI.StaticText(label), self.alignment)
 end
 
+function msDialog:AddFloat(label)
+	local control
+	self.layout:PushH(self.alignment)
+		msDialog:AddText(label)
+		control = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
+	self.layout:Pop()
+	return control
+end
+
+
 function msDialog:AddTextControl(width, text, message, type)
 	local control = LM.GUI.TextControl(width, text, message, type)
 	self.layout:AddChild(control, self.alignment)
