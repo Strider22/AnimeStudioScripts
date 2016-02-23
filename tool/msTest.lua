@@ -101,16 +101,22 @@ function msTest:MoveAllCurves(moho)
 	end
 end
 
+function msLipSync:IsEnabled(moho)
+	if ((moho.layer:LayerType() ~= MOHO.LT_SWITCH) and (moho.layer:LayerType() ~= MOHO.LT_BONE)) then
+		return false
+	end
+	return true
+end
 
--- **************************************************
--- The guts of this script
--- **************************************************
-function msTest:Run(moho)
+
+function msTest:OnMouseDown(moho, mouseEvent)
+-- function msTest:Run(moho)
 	-- self:Shapes(moho)
-	self.origin = msCurvedTransform:Point(0,0,0)
+	-- self.origin = msCurvedTransform:Point(0,0,0)
+	self.startFrame = moho.layer:CurFrame()
 	
-	moho.document:PrepUndo(moho.layer)
-	moho.document:SetDirty()
+	-- moho.document:PrepUndo(moho.layer)
+	-- moho.document:SetDirty()
 
 	-- self.origin:Print()
 	-- self:Rotate(.56)
@@ -118,5 +124,56 @@ function msTest:Run(moho)
 	-- self:Rotate(0.2)
 	-- self:Rotate(0)
 	-- self:Rotate(-.2)
-	self:MoveAllCurves(moho)
+	-- self:MoveAllCurves(moho)
 end
+
+function msTest:OnMouseUp(moho, mouseEvent)
+	if (mouseEvent.shiftKey) then
+		self.endFrame = moho.layer:CurFrame()
+	else
+		self.startFrame = moho.layer:CurFrame()
+		print("start at ".. self.startFrame)
+		print("end at " .. moho.layer:CurFrame())
+	end
+end
+
+function msTest:OnMouseMoved(moho, mouseEvent)
+
+	mouseGenValue=mouseEvent.pt.x-mouseEvent.startPt.x
+	newFrame=self.startFrame+math.floor(mouseGenValue/10)
+	moho:SetCurFrame(newFrame)
+
+end
+-- **************************************************
+-- The guts of this script
+-- **************************************************
+-- function msTest:OnMouseDown(moho, mouseEvent)
+-- -- function msTest:Run(moho)
+	-- -- self:Shapes(moho)
+	-- -- self.origin = msCurvedTransform:Point(0,0,0)
+	-- self.startFrame = moho.layer:CurFrame()
+	
+	-- -- moho.document:PrepUndo(moho.layer)
+	-- -- moho.document:SetDirty()
+
+	-- -- self.origin:Print()
+	-- -- self:Rotate(.56)
+	-- -- self:Rotate(.55)
+	-- -- self:Rotate(0.2)
+	-- -- self:Rotate(0)
+	-- -- self:Rotate(-.2)
+	-- -- self:MoveAllCurves(moho)
+-- end
+-- function msTest:OnMouseUp(moho, mouseEvent)
+    -- print("start at ".. self.startFrame)
+	-- print("end at " .. moho.layer:CurFrame())
+-- end
+
+
+-- function msTest:OnMouseMoved(moho, mouseEvent)
+	
+	-- mouseGenValue=mouseEvent.pt.x-mouseEvent.startPt.x
+	
+	-- newFrame=self.startFrame+math.floor(mouseGenValue/10)
+	-- moho:SetCurFrame(newFrame)
+-- end

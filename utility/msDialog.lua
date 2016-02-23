@@ -49,6 +49,12 @@ function msDialog:AddFloat(label)
 	return control
 end
 
+function msDialog:AddCheckBox(label)
+	local control = LM.GUI.CheckBox(label)
+	self.layout:AddChild(control,self.alignment)
+	return control
+end
+
 
 function msDialog:AddTextControl(width, text, message, type)
 	local control = LM.GUI.TextControl(width, text, message, type)
@@ -56,11 +62,24 @@ function msDialog:AddTextControl(width, text, message, type)
 	return control
 end
 
+
 function msDialog:MakePopup(menu)
 	popup = LM.GUI.PopupMenu(256, true)
 	popup:SetMenu(menu)
 	self.layout:AddChild(popup)
 end
+
+
+function msDialog:CreateDropDownMenu(title, list)
+	local menu = LM.GUI.Menu(title)
+	for index,value in ipairs(list) do
+		menu:AddItem(value, 0, MOHO.MSG_BASE + index -1)
+	end
+
+	self:MakePopup(menu)
+	return menu
+end
+
 
 function msDialog:AudioDropdown(moho, value, label,initialLayer)
 	local menu = LM.GUI.Menu(self:Localize(value, label))
