@@ -8,7 +8,7 @@ function msCopyAnimation:Name()
 end
 
 function msCopyAnimation:Version()
-	return "1.1"
+	return "1.2"
 end
 
 function msCopyAnimation:Description()
@@ -150,6 +150,22 @@ function msCopyAnimation:CopyAnimation(destLayer)
 	if self.accumulateOffsets then
 		self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
 	end
+	if (srcLayer:LayerType() == MOHO.LT_BONE) and (destLayer:LayerType() == MOHO.LT_BONE) then
+		print("copying rotation")
+		srcSkel = self.moho:LayerAsBone(srcLayer):Skeleton()
+		destSkel = self.moho:LayerAsBone(destLayer):Skeleton()
+		if (srcSkel ~= nil) then
+		print("srcSkel ~= nil")
+			for i = 0, srcSkel:CountBones() - 1 do
+				print("bone " .. i)
+				local newRot
+				local srcBone = srcSkel:Bone(i)
+				local destBone = destSkel:Bone(i)
+				self:CopyChannel(srcBone.fAnimAngle, destBone.fAnimAngle, frameOffset)
+			end
+		end
+	end
+
 	self:CopyChannel(srcLayer.fTranslation, destLayer.fTranslation, frameOffset)
 	self:CopyChannel(srcLayer.fScale, destLayer.fScale, frameOffset)
 	self:CopyChannel(srcLayer.fRotationZ, destLayer.fRotationZ, frameOffset)
@@ -209,7 +225,7 @@ function msCopyAnimation:Run(moho)
 	if self.randomize then
 		self:ShuffleTable(self.layerList)
 	end
-	for k, v in ipairs(self.layerList ) do
+	for k, v in ipairs(self.layerList) do
 		self:CopyAnimation(v)
 	end
 end
