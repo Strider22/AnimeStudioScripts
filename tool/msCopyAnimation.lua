@@ -126,8 +126,6 @@ function msCopyAnimation:CopyChannel(srcChannel, destChannel, frameOffset)
 		destChannel:SetKeyInterp(frame+keyOffset,interpSetting)	
 		::continue::
 	end
-	-- Set the initial frame to be 0
-	-- destChannel:SetValue(frameOffset, destChannel:GetValue(0))
 end
 math.randomseed( os.time() )
 
@@ -151,13 +149,10 @@ function msCopyAnimation:CopyAnimation(destLayer)
 		self.totalFrameOffset = self.totalFrameOffset + self.frameOffset
 	end
 	if (srcLayer:LayerType() == MOHO.LT_BONE) and (destLayer:LayerType() == MOHO.LT_BONE) then
-		print("copying rotation")
 		srcSkel = self.moho:LayerAsBone(srcLayer):Skeleton()
 		destSkel = self.moho:LayerAsBone(destLayer):Skeleton()
 		if (srcSkel ~= nil) then
-		print("srcSkel ~= nil")
 			for i = 0, srcSkel:CountBones() - 1 do
-				print("bone " .. i)
 				local newRot
 				local srcBone = srcSkel:Bone(i)
 				local destBone = destSkel:Bone(i)
@@ -214,7 +209,7 @@ function msCopyAnimation:Run(moho)
 		return
 	end
 	moho.document:SetDirty()
-	moho:SetCurFrame(0)
+	-- moho:SetCurFrame(0)
 	self.srcLayer = nil
 	self.layerList = {}
 	self.totalFrameOffset = self.frameOffset
