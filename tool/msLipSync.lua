@@ -10,11 +10,11 @@ function msLipSync:Description()
 end
 
 function msLipSync:Name()
-	return "Mouth Wiggle"
+	return "Lip Sync"
 end
 
 function msLipSync:Version()
-	return "1.0"
+	return "2.0"
 end
 function msLipSync:Creator()
 	return "Mitchel Soltys"
@@ -40,8 +40,6 @@ msLipSync.skel = nil
 msLipSync.cancel = false
 msLipSync.phonemeToBonesMap = {}
 msLipSync.phonetic = true
-msLipSync.openCloseName = "Open/Close"
-msLipSync.squashStretchName = "Squash/Stretch"
 msLipSync.firstChecked = 0
 
 -- **************************************************
@@ -53,14 +51,13 @@ local msLipSyncDialog = {}
 function msLipSyncDialog:new(moho)
 	msHelper:Debug("in sync dialog ")
 
-	--the place where things should be
-	--print("userappdir " .. moho:UserAppDir())
 
 	local dialog, layout = msDialog:SimpleDialog("Lip Sync", msLipSyncDialog)
 
 	dialog.moho = moho
     msLipSync.myPhonemes = msPhonemes.new()
-	msLipSync.myPhonemes.BuildPhonemeMap(moho:AppDir().."/scripts/utility/lipSync.txt")
+	-- msLipSync.myPhonemes.BuildPhonemeMap(moho:AppDir().."/scripts/utility/lipSync.txt")
+	msLipSync.myPhonemes.BuildPhonemeMap(moho:UserAppDir().."/scripts/utility/lipSync.txt")
 	--myPhonemes.dump(myPhonemes.boneMaps)
 	msHelper:Debug("after buildPhonememap  ")
 
@@ -222,7 +219,29 @@ function msLipSync:IsEnabled(moho)
 	return true
 end
 
-function msLipSync:Run(moho)
+function msLipSync:OnMouseDown(moho, mouseEvent)
+	self.startFrame = moho.layer:CurFrame()
+end
+
+
+function msLipSync:OnMouseUp(moho, mouseEvent)
+	-- if (mouseEvent.shiftKey) then
+		self.endFrame = moho.layer:CurFrame()
+		self:DoLipSync(moho)
+	-- else
+		-- self.startFrame = moho.layer:CurFrame()
+	-- end
+end
+
+function msLipSync:OnMouseMoved(moho, mouseEvent)
+
+	mouseGenValue=mouseEvent.pt.x-mouseEvent.startPt.x
+	newFrame=self.startFrame+math.floor(mouseGenValue/10)
+	moho:SetCurFrame(newFrame)
+
+end
+
+function msLipSync:DoLipSync(moho)
 	self.moho = moho
 	msDialog.cancelled = false
 	msHelper:Debug("in run before dialog  ")
@@ -240,7 +259,6 @@ function msLipSync:Run(moho)
 	moho.document:SetDirty()
 
 	
-	-- self:DeleteKeys()
 	local phonemeList = {}
 	msHelper:Debug("phrase to speak " .. self.text)
 	self.myPhonemes.buildPhonemeListFromPhrase(self.text, phonemeList, self.phonetic)
@@ -259,5 +277,6 @@ function msLipSync:Run(moho)
 		end
 		self:SetMouthValues(phonemeList,"bone")
 	end
+	moho.layer:UpdateCurFrame(true)
 	
 end
