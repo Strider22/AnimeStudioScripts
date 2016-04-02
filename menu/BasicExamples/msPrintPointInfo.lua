@@ -40,7 +40,10 @@ function msPrintPointInfo:PrintPointInfo(moho)
 	for i = 0, mesh:CountPoints()-1 do
 		local point = mesh:Point(i)
 		local position = point.fPos;
+		print("")
 		print("Point " .. i .. " position at frame " .. layer:CurFrame() .. " is: x = " .. position.x .. " y = " .. position.y)
+		print("Selected ? " .. tostring(point.fSelected))
+		print("Binding " .. point.fParent)
 		local animPos = point.fAnimPos
 		for j = 0, animPos:CountKeys()-1 do
 			local frame = animPos:GetKeyWhen(j)
