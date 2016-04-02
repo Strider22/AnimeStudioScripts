@@ -8,9 +8,10 @@ msDialog.cancelled = false
 
 function msDialog:Display(moho, dialogType)
 	local dialog = dialogType:new(moho)
-	if (dialog:DoModal() == LM.GUI.MSG_CANCEL) then
-		self.cancelled = true
-	end
+	return dialog:DoModal()
+	-- if (dialog:DoModal() == LM.GUI.MSG_CANCEL) then
+		-- self.cancelled = true
+	-- end
 end
 
 function msDialog:SimpleDialog(title, subclass)
@@ -76,6 +77,46 @@ function msDialog:CreateDropDownMenu(title, list)
 		menu:AddItem(value, 0, MOHO.MSG_BASE + index -1)
 	end
 
+	self:MakePopup(menu)
+	return menu
+end
+
+function msDialog:CreateBoneLayerDropDownMenu(moho, title)
+	return self:CreateLayerDropDownMenu(moho, title, MOHO.LT_BONE)
+end
+
+function msDialog:CreateVectorLayerDropDownMenu(moho, title)
+	return self:CreateLayerDropDownMenu(moho, title, MOHO.LT_VECTOR)
+end
+
+
+function msDialog:CreateLayerDropDownMenu(moho, title, layerType)
+	self.layout:PushH(self.alignment)
+		msDialog:AddText(title)
+		local menu = LM.GUI.Menu(title)
+
+		for i = 0, moho.document:CountLayers()-1 do
+			local layer = moho.document:Layer(i)
+			if (layer:LayerType() == layerType) then
+				menu:AddItem(layer:Name(), 0, MOHO.MSG_BASE + i)
+			end
+		end
+		
+		menu:SetChecked(MOHO.MSG_BASE, true)
+		self:MakePopup(menu)
+	self.layout:Pop()
+	return menu
+end
+
+function msDialog:CreateSelectedLayerDropDownMenu(moho, title)
+	local menu = LM.GUI.Menu(title)
+
+	for i = 0, moho.document:CountSelectedLayers()-1 do
+		local layer = moho.document:GetSelectedLayer(i)
+		menu:AddItem(layer:Name(), 0, MOHO.MSG_BASE + i)
+	end
+
+	menu:SetChecked(MOHO.MSG_BASE, true)
 	self:MakePopup(menu)
 	return menu
 end
