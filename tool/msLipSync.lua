@@ -40,6 +40,7 @@ msLipSync.skel = nil
 msLipSync.cancel = false
 msLipSync.phonemeToBonesMap = {}
 msLipSync.phonetic = true
+msLipSync.consonantFrames = 1
 msLipSync.firstChecked = 0
 
 -- **************************************************
@@ -83,6 +84,7 @@ function msLipSyncDialog:new(moho)
 			msDialog:AddText("Start Frame:")
 			msDialog:AddText("End Frame:")
 			msDialog:AddText("Text String:")
+			msDialog:AddText("Consonant Frames:")
 	
 	-- Should the rest mouth be put at the end of the audio section
 	dialog.phonetic = msDialog:Control(LM.GUI.CheckBox, "Phonetic","Phonetic spelling")
@@ -94,6 +96,7 @@ function msLipSyncDialog:new(moho)
 			dialog.startFrame = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
 			dialog.endFrame = msDialog:AddTextControl(0, "100.0000", 0, LM.GUI.FIELD_FLOAT)
 			dialog.text = msDialog:AddTextControl(0,"What are you saying", 0, LM.GUI.FIELD_TEXT)
+			dialog.consonantFrames = msDialog:AddTextControl(0,"1.0000", 0, LM.GUI.FIELD_INT)
 		layout:Pop()
 	layout:Pop()
 	
@@ -106,6 +109,7 @@ end
 function msLipSyncDialog:UpdateWidgets()
 	self.startFrame:SetValue(msLipSync.startFrame)
 	self.endFrame:SetValue(msLipSync.endFrame)
+	self.consonantFrames:SetValue(msLipSync.consonantFrames)
 	self.text:SetValue(msLipSync.text)
 	self.phonetic:SetValue(msLipSync.phonetic)
 	self.debug:SetValue(msHelper.debug)
@@ -127,6 +131,7 @@ function msLipSyncDialog:OnOK()
 
 	msLipSync.startFrame =	self.startFrame:FloatValue()
     msLipSync.endFrame = self.endFrame:FloatValue()
+    msLipSync.consonantFrames = self.consonantFrames:IntValue()
     msLipSync.text = self.text:Value()
     msLipSync.phonetic = self.phonetic:Value()
 	msHelper.debug = self.debug:Value()
@@ -205,7 +210,7 @@ function msLipSync:SetMouthValues(phonemeList,type)
 			lastMouth = mouth
 		end
 		if v[2] == "c" then 
-			frame = frame + 1
+			frame = frame + self.consonantFrames
 		else
 		  frame = frame + self.stepSize
 		end
@@ -278,5 +283,5 @@ function msLipSync:DoLipSync(moho)
 		self:SetMouthValues(phonemeList,"bone")
 	end
 	moho.layer:UpdateCurFrame(true)
-	
+	moho:UpdateUI()
 end
