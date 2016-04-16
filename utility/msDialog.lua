@@ -102,7 +102,7 @@ function msDialog:CreateLayerDropDownMenu(moho, title, layerType)
 			end
 		end
 		
-		menu:SetChecked(MOHO.MSG_BASE, true)
+		menu:SetCheckedLabel(moho.document:Layer(0):Name(), true)
 		self:MakePopup(menu)
 	self.layout:Pop()
 	return menu
