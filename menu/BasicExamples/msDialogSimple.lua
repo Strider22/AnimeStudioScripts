@@ -27,7 +27,10 @@ end
 -- **************************************************
 -- Recurring values
 -- **************************************************
-msDialogSimple.srcLayer = 0
+msDialogSimple.srcLayer = nil
+msDialogSimple.selectLayer = nil
+msDialogSimple.allLayer = nil
+msDialogSimple.boneLayer = nil
 msDialogSimple.offsetStartFrame = 1
 msDialogSimple.skipToStart = true
 
@@ -45,6 +48,9 @@ function msDialogSimpleDialog:new(moho)
 	self.moho = moho
 
 	self.menu = msDialog:CreateDropDownMenu("Select Base Animation Layer",{"First Value", "Second Value", "Third Value"})
+	self.boneMenu = msDialog:CreateBoneLayerDropDownMenu(moho, "Bone Layers")
+	self.selectMenu = msDialog:CreateSelectedLayerDropDownMenu(moho, "Selected Layers")
+	self.allMenu = msDialog:CreateLayerDropDownMenu(moho, "All Layers")
 	self.offsetStartFrame = msDialog:AddFloat("Offset Start Frame")
     self.skipToStart = msDialog:AddCheckBox("Skip to Start Frame")
 
@@ -55,14 +61,22 @@ end
 
 
 function msDialogSimpleDialog:UpdateWidgets()
-	self.menu:SetChecked(MOHO.MSG_BASE + msDialogSimple.srcLayer, true)
+	msDialog:SetMenuByLabel(self.menu,msDialogSimple.srcLayer)
+	msDialog:SetMenuByLabel(self.boneMenu,msDialogSimple.boneLayer)
+	msDialog:SetMenuByLabel(self.selectMenu,msDialogSimple.selectLayer)
+	msDialog:SetMenuByLabel(self.allMenu,msDialogSimple.allLayer)
+
 	self.offsetStartFrame:SetValue(self.moho.frame)
 	self.skipToStart:SetValue(msDialogSimple.skipToStart)
 end
 
 
 function msDialogSimpleDialog:OnOK()
-	msDialogSimple.srcLayer = self.menu:FirstChecked()
+	msDialogSimple.srcLayer = self.menu:FirstCheckedLabel()
+	msDialogSimple.selectLayer = self.selectMenu:FirstCheckedLabel()
+	msDialogSimple.allLayer = self.allMenu:FirstCheckedLabel()
+	msDialogSimple.boneLayer = self.boneMenu:FirstCheckedLabel()
+
 	msDialogSimple.offsetStartFrame = self.offsetStartFrame:FloatValue()
 	msDialogSimple.skipToStart = self.skipToStart:Value()
 end
