@@ -71,54 +71,123 @@ function msDialog:MakePopup(menu)
 end
 
 
-function msDialog:CreateDropDownMenu(title, list)
-	local menu = LM.GUI.Menu(title)
-	for index,value in ipairs(list) do
-		menu:AddItem(value, 0, MOHO.MSG_BASE + index -1)
-	end
-
-	self:MakePopup(menu)
-	return menu
-end
-
-function msDialog:CreateBoneLayerDropDownMenu(moho, title)
-	return self:CreateLayerDropDownMenu(moho, title, MOHO.LT_BONE)
-end
-
-function msDialog:CreateVectorLayerDropDownMenu(moho, title)
-	return self:CreateLayerDropDownMenu(moho, title, MOHO.LT_VECTOR)
-end
-
-
-function msDialog:CreateLayerDropDownMenu(moho, title, layerType)
+function msDialog:CreateDropDownMenu(title, list, msgBase)
 	self.layout:PushH(self.alignment)
 		msDialog:AddText(title)
 		local menu = LM.GUI.Menu(title)
 
-		for i = 0, moho.document:CountLayers()-1 do
-			local layer = moho.document:Layer(i)
-			if (layer:LayerType() == layerType) then
-				menu:AddItem(layer:Name(), 0, MOHO.MSG_BASE + i)
-			end
+		if msgBase == nil then
+			msgBase = MOHO.MSG_BASE
 		end
-		
-		menu:SetCheckedLabel(moho.document:Layer(0):Name(), true)
+		menu.msgBase = msgBase
+
+		for index,value in ipairs(list) do
+			menu:AddItem(value, 0, msgBase + index -1)
+		end
+
 		self:MakePopup(menu)
 	self.layout:Pop()
 	return menu
 end
 
-function msDialog:CreateSelectedLayerDropDownMenu(moho, title)
-	local menu = LM.GUI.Menu(title)
+function msDialog:CreateLayerDropDownMenuFromList(moho, title, layerList, msgBase)
+	self.layout:PushH(self.alignment)
+		msDialog:AddText(title)
+		local menu = LM.GUI.Menu(title)
 
-	for i = 0, moho.document:CountSelectedLayers()-1 do
-		local layer = moho.document:GetSelectedLayer(i)
-		menu:AddItem(layer:Name(), 0, MOHO.MSG_BASE + i)
-	end
+		if msgBase == nil then
+			msgBase = MOHO.MSG_BASE
+		end
+		menu.msgBase = msgBase
 
-	menu:SetChecked(MOHO.MSG_BASE, true)
-	self:MakePopup(menu)
+
+		for k,layer in ipairs(layerList) do
+			menu:AddItem(layer:Name(), 0, msgBase + k -1)
+		end
+		
+		menu:SetChecked(MOHO.MSG_BASE, true)
+		self:MakePopup(menu)
+	self.layout:Pop()
 	return menu
+end
+
+function msDialog:CreateBoneLayerDropDownMenu(moho, title, msgBase, groupLayerName)
+	return self:CreateLayerDropDownMenu(moho, title, msgBase, MOHO.LT_BONE, groupLayerName)
+end
+
+function msDialog:CreateVectorLayerDropDownMenu(moho, title, msgBase, groupLayerName)
+	return self:CreateLayerDropDownMenu(moho, title, msgBase, MOHO.LT_VECTOR, groupLayerName)
+end
+
+function msDialog:CreateLayerDropDownMenu(moho, title, msgBase, layerType, groupLayerName)
+	self.layout:PushH(self.alignment)
+		msDialog:AddText(title)
+		local menu = LM.GUI.Menu(title)
+
+		if msgBase == nil then
+			msgBase = MOHO.MSG_BASE
+		end
+		menu.msgBase = msgBase
+
+		local parentLayer = nil
+		if groupLayerName == nil then
+			parentLayer = moho.document
+		else
+			local groupLayer = moho.document:LayerByName(groupLayerName)
+			if not groupLayer:IsGroupType()then
+				print("layer ", groupLayerName, " needs to be a group type or nil")
+			else
+				parentLayer = moho:LayerAsGroup(groupLayer)
+			end
+		end
+		
+		local msg = 0
+		for i = parentLayer:CountLayers()-1,0,-1 do
+			local layer = parentLayer:Layer(i)
+			if layerType == nil then
+				menu:AddItem(layer:Name(), 0, msgBase + msg)
+				msg = msg + 1
+			elseif (layer:LayerType() == layerType) then
+				menu:AddItem(layer:Name(), 0, msgBase + msg)
+				msg = msg + 1
+			end
+		end
+		
+		self:MakePopup(menu)
+	self.layout:Pop()
+	return menu
+end
+
+function msDialog:CreateSelectedLayerDropDownMenu(moho, title, msgBase)
+	self.layout:PushH(self.alignment)
+		self:AddText(title)
+		local menu = LM.GUI.Menu(title)
+		if msgBase == nil then
+			msgBase = MOHO.MSG_BASE
+		end
+		menu.msgBase = msgBase
+		-- use msg to align with CreateLayerDropDownMenu which
+		-- can have missing layers and the fact that we want 
+		-- to always start the menu at 0		
+		local msg = 0
+		for i = moho.document:CountSelectedLayers()-1,0,-1 do
+			local layer = moho.document:GetSelectedLayer(i)
+			menu:AddItem(layer:Name(), 0, msgBase + msg)
+			msg = msg +1
+		end
+		
+		self:MakePopup(menu)
+	self.layout:Pop()
+	return menu
+end
+
+function msDialog:SetMenuByLabel(menu,layerLabel)
+	menu:UncheckAll()
+	if layerLabel ~= nil then
+		menu:SetCheckedLabel(layerLabel, true)
+	else 
+		menu:SetChecked(menu.msgBase,true)
+	end
 end
 
 

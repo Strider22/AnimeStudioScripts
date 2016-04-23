@@ -1,38 +1,36 @@
 -- FEEL FREE TO OVERWRITE THIS
 
 
-ScriptName = "msTest"
-msTest = {}
+ScriptName = "msDialogNested"
+msDialogNested = {}
 
-function msTest:Description()
-	return "Basic Dialog using msDialog helper routines."
+function msDialogNested:Description()
+	return "NestedDialogs."
 end
 
 
-msTest.BASE_STR = 2540
+msDialogNested.BASE_STR = 2540
 
-function msTest:Name()
-	return "msTest"
+function msDialogNested:Name()
+	return "msDialogNested"
 end
 
-function msTest:Version()
+function msDialogNested:Version()
 	return "1.0"
 end
 
-function msTest:Creator()
+function msDialogNested:Creator()
 	return "Mitchel Soltys"
 end
 
-function msTest:UILabel()
+function msDialogNested:UILabel()
 	return "Test ..."
 end
 
 -- **************************************************
 -- Recurring values
 -- **************************************************
-msTest.selectLayer = nil
-msTest.allLayer = nil
-msTest.boneLayer = nil
+msDialogNested.boneLayer = nil
 
 
 -- **************************************************
@@ -60,14 +58,14 @@ end
 
 
 function msCheckBoxDialog:OnOK()
-	msTest.checkList = self.checkList
+	msDialogNested.checkList = self.checkList
 end
 
 
-local msTestDialog = {}
+local msDialogNestedDialog = {}
 
 
-function msTestDialog:new(moho)
+function msDialogNestedDialog:new(moho)
 	local self, l = msDialog:SimpleDialog("Test", self)
 
 	self.moho = moho
@@ -78,16 +76,16 @@ end
 
 
 
-function msTestDialog:UpdateWidgets()
-	msDialog:SetMenuByLabel(self.boneMenu,msTest.boneLayer)
+function msDialogNestedDialog:UpdateWidgets()
+	msDialog:SetMenuByLabel(self.boneMenu,msDialogNested.boneLayer)
 end
 
 
-function msTestDialog:OnOK()
-	msTest.boneLayer = self.boneMenu:FirstCheckedLabel()
+function msDialogNestedDialog:OnOK()
+	msDialogNested.boneLayer = self.boneMenu:FirstCheckedLabel()
 end
 
-function msTest:GetGroupLayer(groupLayerName)
+function msDialogNested:GetGroupLayer(groupLayerName)
 	local databaseLayer = self.moho:LayerAsGroup(self.moho.document:LayerByName("Transitions Database"))
 	local layer = databaseLayer:LayerByName(groupLayerName)
 	
@@ -104,10 +102,10 @@ end
 -- The guts of this script
 -- **************************************************
 
-function msTest:Run(moho)
+function msDialogNested:Run(moho)
 	self.moho = moho
 
-	msDialog:Display(moho, msTestDialog)
+	msDialog:Display(moho, msDialogNestedDialog)
 	local dialog = msCheckBoxDialog:new(moho, self:GetGroupLayer(self.boneLayer))
 	if (dialog:DoModal() == LM.GUI.MSG_CANCEL) then
 		return
