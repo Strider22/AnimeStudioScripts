@@ -9,7 +9,7 @@ function msTransition:Name()
 end
 
 function msTransition:Version()
-	return "1.0"
+	return "1.3"
 end
 
 function msTransition:Description()
@@ -29,13 +29,16 @@ end
 -- Recurring values
 -- **************************************************
 msTransition.boneLayer = nil
+msTransition.object1Layer = nil
+msTransition.object2Layer = nil
 msTransition.isObjectTransition = false
+msTransition.checkList = nil
 
 
 -- **************************************************
 -- Checkbox dialog
 -- **************************************************
-local msTransitionCheckboxDialog  ={}
+local msTransitionCheckboxDialog  = {}
 
 function msTransitionCheckboxDialog:new(moho,groupLayer)
 	local self, l = msDialog:SimpleDialog("Checkbox", self)
@@ -73,6 +76,8 @@ function msTransitionDialog:new(moho)
 	self.moho = moho
 	self.boneMenu = msDialog:CreateBoneLayerDropDownMenu(moho, "Select Transition", nil, "Transitions Database")
     self.isObjectTransition = msDialog:AddCheckBox("Object Transition")
+	self.object1Menu = msDialog:CreateLayerDropDownMenu(moho, "Select Object 1")
+	self.object2Menu = msDialog:CreateLayerDropDownMenu(moho, "Select Object 2")
 	return self
 end
 
@@ -82,13 +87,18 @@ end
 function msTransitionDialog:UpdateWidgets()
 	msDialog:SetMenuByLabel(self.boneMenu,msTransition.boneLayer)
 	self.isObjectTransition:SetValue(msTransition.isObjectTransition)
+	msDialog:SetMenuByLabel(self.object1Menu,msTransition.object1Layer)
+	msDialog:SetMenuByLabel(self.object2Menu,msTransition.object2Layer)
 end
 
 
 function msTransitionDialog:OnOK()
 	msTransition.boneLayer = self.boneMenu:FirstCheckedLabel()
 	msTransition.isObjectTransition = self.isObjectTransition:Value()
+	msTransition.object1Layer = self.object1Menu:FirstCheckedLabel()
+	msTransition.object2Layer = self.object2Menu:FirstCheckedLabel()
 end
+
 
 
 -- **************************************************
@@ -180,17 +190,13 @@ function msTransition:Run(moho)
 	end
 
 	msDialog:Display(moho, msTransitionDialog)
-	if((self.moho.document:CountSelectedLayers() < 2) and (self.isObjectTransition)) then
-		self:Alert("You need to select 2 layers for object transition.")
-		return
-	end
-	local layerList = self:CreateSelectedLayerList()
 
 	local databaseLayer = self.moho:LayerAsGroup(self.moho.document:LayerByName("Transitions Database"))
 	local transitionLayer = databaseLayer:LayerByName(self.boneLayer)
 	
 	if not transitionLayer:IsGroupType()then
-		self.Alert("layer ", groupLayerName, " needs to be a bone type")
+		self:Alert("layer ", groupLayerName, " needs to be a bone type")
+		return
 	end
 	
 	transitionLayer = self.moho:LayerAsGroup(transitionLayer)
@@ -203,23 +209,40 @@ function msTransition:Run(moho)
 	moho.document:SetDirty()
 	moho.document:PrepUndo(moho.layer)
 
-	local newLayer = moho:DuplicateLayer(transitionLayer)
-	moho:PlaceLayerBehindAnother(newLayer, databaseLayer)
+
+	moho.document:SetDirty()
+	moho.document:PrepUndo(moho.layer)
+
+	local newTransitionLayer = self.moho:LayerAsGroup(moho:DuplicateLayer(transitionLayer))
+
+	moho:PlaceLayerBehindAnother(newTransitionLayer, databaseLayer)
 	databaseLayer:SetVisible(false)
 	databaseLayer:Expand(false)
 	if not self.isObjectTransition then
-		self:SetVisibility(newLayer, moho.frame)
+		self:SetVisibility(newTransitionLayer, moho.frame)
 	end
-	self:SetBoneKeys(newLayer, moho.frame, self.isObjectTransition)
-	self:DeleteUnselectedLayers(newLayer, self.checkList)
+	self:SetBoneKeys(newTransitionLayer, moho.frame, self.isObjectTransition)
+	self:DeleteUnselectedLayers(newTransitionLayer, self.checkList)
 	
-	local switchLayer = self:CreateGroupLayer("Objects", "Switch")
-	for k, layer in ipairs(layerList) do
-		local groupLayer = self:CreateGroupLayer("Object".. k, "Group")
-		local objectLayer = moho:DuplicateLayer(layer)
-		self.moho:PlaceLayerInGroup(groupLayer, switchLayer, true,true)
-		self.moho:PlaceLayerInGroup(objectLayer, groupLayer, true,true)
+	if self.isObjectTransition then
+		local objectsLayer = newTransitionLayer:LayerByName("Objects")
+		if objectsLayer == nil then
+			self:Alert("Trying to do an object transition, but no layer named 'Objects' was found")
+			return
+		end
+		objectsLayer = self.moho:LayerAsGroup(objectsLayer)
+		local object1Layer = objectsLayer:LayerByName("Object 1")
+		if object1Layer == nil then
+			self:Alert("Trying to do an object transition, but no layer named 'Objects 1' was found")
+			return
+		end
+		local object2Layer = objectsLayer:LayerByName("Object 2")
+		if object2Layer == nil then
+			self:Alert("Trying to do an object transition, but no layer named 'Objects 2' was found")
+			return
+		end
+		self.moho:PlaceLayerInGroup(moho:DuplicateLayer(moho.document:LayerByName(self.object1Layer)), object1Layer, true,true)
+		self.moho:PlaceLayerInGroup(moho:DuplicateLayer(moho.document:LayerByName(self.object2Layer)), object2Layer, true,true)
 	end
-	self.moho:PlaceLayerInGroup(switchLayer, newLayer, true,true)
 
 end
