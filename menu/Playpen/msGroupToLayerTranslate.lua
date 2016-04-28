@@ -1,7 +1,6 @@
 -- playpen for trying things out
 ScriptName = "msGroupToLayerTranslate"
 msGroupToLayerTranslate = {}
-msGroupToLayerTranslate.currentFrame = 0
 
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
@@ -15,7 +14,7 @@ function msGroupToLayerTranslate:Version()
 end
 
 function msGroupToLayerTranslate:Description()
-	return MOHO.Localize("/Scripts/Menu/MinimalScript/Description=Removes transform from group and applies it to sub layers.")
+	return "Removes Translation from group and applies it to sub layers."
 end
 
 function msGroupToLayerTranslate:Creator()
@@ -26,67 +25,64 @@ end
 -- This is the Script label in the GUI
 -- **************************************************
 function msGroupToLayerTranslate:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/GroupToLayerTranslate/GroupToLayerTranslate=GroupToLayerTranslate ... "))
+	return "GroupToLayerTranslate ... "
 end
 
 
+function msGroupToLayerTranslate:RemoveLayerTranslation(layer)
+	local vector = LM.Vector3:new_local()
+    vector.x = 0
+    vector.y = 0
+    vector.z = 0
+	layer.fTranslation:SetValue(0,vector)
+end
 
-function msGroupToLayerTranslate:TransformCurve(curve, translation)
+
+function msGroupToLayerTranslate:TranslateCurve(curve, translation)
 	local vector = LM.Vector2:new_local()
 	vector:Set(translation.x,translation.y)
 	-- print("vector x " .. vector.x .. " y " ..vector.y)
 	
 	for i = 1, curve:CountPoints(), 1 do
 		local pt = curve:Point(i)
-		-- ignore z
-		pt.fAnimPos:SetValue(self.currentFrame, pt.fPos + vector)
+		pt.fAnimPos:SetValue(0, pt.fPos + vector)
 	end
 end
 
 
-function msGroupToLayerTranslate:TransformAllCurves(vectorLayer, translation)
-	print("transform layer " .. vectorLayer:Name())
+function msGroupToLayerTranslate:TranslateAllCurves(vectorLayer, translation)
 	local mesh = vectorLayer:Mesh()
 	for i = 0, mesh:CountCurves()-1 do
-		self:TransformCurve(mesh:Curve(i), translation)
+		self:TranslateCurve(mesh:Curve(i), translation)
 	end
 end
 
-function msGroupToLayerTranslate:RemoveLayerTransformation(layer)
-	local vector = LM.Vector3:new_local()
-    vector.x = 0
-    vector.y = 0
-    vector.z = 0
-	layer.fTranslation:SetValue(self.currentFrame,vector)
-end
-
-function msGroupToLayerTranslate:TransformLayer(layer, translation, moho)
-	translation = translation + layer.fTranslation:GetValue(self.currentFrame)
--- print("translation " .. translation.x .. ", " .. translation.y .. ", " .. translation.z)
+function msGroupToLayerTranslate:TranslateLayer(layer, translation)
+	translation = translation + layer.fTranslation:GetValue(0)
+	-- print("translation " .. translation.x .. ", " .. translation.y .. ", " .. translation.z)
 
 	if layer:LayerType() == MOHO.LT_VECTOR then
-		self:TransformAllCurves(moho:LayerAsVector(layer), translation)
-		self:RemoveLayerTransformation(layer)
+		self:TranslateAllCurves(self.moho:LayerAsVector(layer), translation)
+		self:RemoveLayerTranslation(layer)
 	elseif layer:IsGroupType() then
-		local group = moho:LayerAsGroup(layer)
+		local group = self.moho:LayerAsGroup(layer)
 		for i = 0, group:CountLayers()-1 do
 			local layer = group:Layer(i)
-			self:TransformLayer(layer, translation, moho)
+			self:TranslateLayer(layer, translation)
 		end
-		self:RemoveLayerTransformation(layer)
+		self:RemoveLayerTranslation(group)
 	else
-		layer.fTranslation:SetValue(self.currentFrame, translation)
+		layer.fTranslation:SetValue(0, translation)
 	end
 end
 
-function msGroupToLayerTranslate:SelectLayer(layer, moho)
-print("slecting layer " .. layer:Name())
-	moho:SetSelLayer(layer)
+function msGroupToLayerTranslate:SelectLayer(layer)
+	self.moho:SetSelLayer(layer)
 	if layer:IsGroupType() then
-		local group = moho:LayerAsGroup(layer)
+		local group = self.moho:LayerAsGroup(layer)
 		for i = 0, group:CountLayers()-1 do
 			local layer = group:Layer(i)
-			self:SelectLayer(layer, moho)
+			self:SelectLayer(layer, self.moho)
 		end
 	end
 end
@@ -95,12 +91,16 @@ end
 -- The guts of this script
 -- **************************************************
 function msGroupToLayerTranslate:Run(moho)
-	self.currentFrame = moho.layer:CurFrame()
+	self.moho = moho
+	-- starting with 0 translation, because the 
+	-- TranslateLayer combines the incoming translation
+	-- with the layer translation to translate properly
 	local translation = LM.Vector3:new_local()
     translation.x = 0
     translation.y = 0
     translation.z = 0
-	self:TransformLayer(moho.layer, translation, moho)
+	self:TranslateLayer(self.moho.layer, translation)
+	self.moho:UpdateUI()
 	-- This doesn't seem to help
-	-- self:SelectLayer(moho.layer, moho)
+	-- self:SelectLayer(self.moho.layer)
 end

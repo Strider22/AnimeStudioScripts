@@ -1,37 +1,37 @@
 -- playpen for trying things out
-ScriptName = "msGroupToLayerTransform"
-msGroupToLayerTransform = {}
-msGroupToLayerTransform.matrix = LM.Matrix:new_local()
+ScriptName = "msGroupToLayerScale"
+msGroupToLayerScale = {}
+msGroupToLayerScale.matrix = LM.Matrix:new_local()
 
 -- **************************************************
 -- This information is displayed in help | About scripts ... 
 -- **************************************************
-function msGroupToLayerTransform:Name()
-	return "GroupToLayerTransform ... "
+function msGroupToLayerScale:Name()
+	return "GroupToLayerScale ... "
 end
 
-function msGroupToLayerTransform:Version()
+function msGroupToLayerScale:Version()
 	return "1.0"
 end
 
-function msGroupToLayerTransform:Description()
-	return MOHO.Localize("/Scripts/Menu/MinimalScript/Description=Removes transform from group and applies it to sub layers.")
+function msGroupToLayerScale:Description()
+	return "Removes scale from group and applies it to sub layers."
 end
 
-function msGroupToLayerTransform:Creator()
+function msGroupToLayerScale:Creator()
 	return "Mitchel Soltys"
 end
 
 -- **************************************************
 -- This is the Script label in the GUI
 -- **************************************************
-function msGroupToLayerTransform:UILabel()
-	return(MOHO.Localize("/Scripts/Menu/GroupToLayerTransform/GroupToLayerTransform=GroupToLayerTransform ... "))
+function msGroupToLayerScale:UILabel()
+	return "GroupToLayerScale ... "
 end
 
 
 
-function msGroupToLayerTransform:TransformCurve(curve, matrix)
+function msGroupToLayerScale:TransformCurve(curve, matrix)
 	local v = LM.Vector2:new_local()
 	
 	for i = 1, curve:CountPoints(), 1 do
@@ -43,14 +43,14 @@ function msGroupToLayerTransform:TransformCurve(curve, matrix)
 end
 
 
-function msGroupToLayerTransform:TransformAllCurves(vectorLayer, matrix)
+function msGroupToLayerScale:TransformAllCurves(vectorLayer, matrix)
 	local mesh = vectorLayer:Mesh()
 	for i = 0, mesh:CountCurves()-1 do
 		self:TransformCurve(mesh:Curve(i), matrix)
 	end
 end
 
-function msGroupToLayerTransform:RemoveLayerTransformation(layer)
+function msGroupToLayerScale:RemoveLayerTransformation(layer)
 	local vector = LM.Vector3:new_local()
     vector.x = 0
     vector.y = 0
@@ -65,7 +65,7 @@ function msGroupToLayerTransform:RemoveLayerTransformation(layer)
 	layer.fRotationZ:SetValue(0,0)
 end
 
-function msGroupToLayerTransform:TransformLayer(layer, parentMatrix, moho)
+function msGroupToLayerScale:TransformLayer(layer, parentMatrix, moho)
 	local vector = LM.Vector2:new_local()
     vector.x = 0
     vector.y = 0
@@ -89,8 +89,7 @@ function msGroupToLayerTransform:TransformLayer(layer, parentMatrix, moho)
 	self:RemoveLayerTransformation(layer)
 end
 
-function msGroupToLayerTransform:SelectLayer(layer, moho)
-print("slecting layer " .. layer:Name())
+function msGroupToLayerScale:SelectLayer(layer, moho)
 	moho:SetSelLayer(layer)
 	if layer:IsGroupType() then
 		local group = moho:LayerAsGroup(layer)
@@ -104,7 +103,7 @@ end
 -- **************************************************
 -- The guts of this script
 -- **************************************************
-function msGroupToLayerTransform:Run(moho)
+function msGroupToLayerScale:Run(moho)
 	local matrix = LM.Matrix:new_local()
 	matrix:Identity()
 	self:TransformLayer(moho.layer, matrix, moho)
