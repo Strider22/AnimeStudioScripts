@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Dojo Drag and Drop Example</title>
+    <style>
+		@import url("//downloads.dojotoolkit.org/release-1.10.1/dojo-release-1.10.1/dojo/resources/dojo.css");
+		@import url("//downloads.dojotoolkit.org/release-1.10.1/dojo-release-1.10.1/dojo/resources/dnd.css");
+		@import url("site-1.css");
+		@import url("dnd.css");
+	</style>
+    <script data-dojo-config="async: 1" src="//downloads.dojotoolkit.org/release-1.10.1/dojo-release-1.10.1/dojo/dojo.js"></script>
+
+    <script>
+		require([ "dojo/dnd/Source", "dojo/domReady!" ], function(Source){
+			var wishlist = new Source("wishlistNode");
+			wishlist.insertNodes(false, [
+				"Wrist watch",
+				"Life jacket",
+				"Toy bulldozer",
+				"Vintage microphone",
+				"TIE fighter"
+			]);
+		});
+	</script>
+
+</head>
+<body id="demo1">
+
+<div id="store">
+    <div class="wishlistContainer">
+        <h2>Wishlist</h2>
+        <ol id="wishlistNode" class="container"></ol>
+    </div>
+
+    <p class="instructions"><b>Instructions:</b> Drag items around to change the list order. Multiple selection works here (⌘-click/ctrl-click), in case you feel like moving items in bulk.</p>
+</div>
+
+
+
+</body>
+</html>

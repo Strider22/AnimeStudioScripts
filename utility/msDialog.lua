@@ -37,15 +37,16 @@ function msDialog:Control(componentFunction, value, label)
 	return control
 end
 
+--Just a label
 function msDialog:AddText(label)
 	self.layout:AddChild(LM.GUI.StaticText(label), self.alignment)
 end
 
-function msDialog:AddFloat(label)
+function msDialog:AddTextBox(label)
 	local control
 	self.layout:PushH(self.alignment)
-		msDialog:AddText(label)
-		control = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
+	msDialog:AddText(label)
+	control = msDialog:AddTextControl(0, "This is the layer name", 0, LM.GUI.FIELD_TEXT)
 	self.layout:Pop()
 	return control
 end
@@ -56,6 +57,15 @@ function msDialog:AddCheckBox(label)
 	return control
 end
 
+
+function msDialog:AddFloat(label)
+	local control
+	self.layout:PushH(self.alignment)
+	msDialog:AddText(label)
+	control = msDialog:AddTextControl(0, "1.0000", 0, LM.GUI.FIELD_FLOAT)
+	self.layout:Pop()
+	return control
+end
 
 function msDialog:AddTextControl(width, text, message, type)
 	local control = LM.GUI.TextControl(width, text, message, type)

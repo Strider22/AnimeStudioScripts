@@ -32,6 +32,7 @@ msDialogSimple.selectLayer = nil
 msDialogSimple.allLayer = nil
 msDialogSimple.boneLayer = nil
 msDialogSimple.offsetStartFrame = 1
+msDialogSimple.layerName = "myLayer"
 msDialogSimple.skipToStart = true
 
 
@@ -52,6 +53,7 @@ function msDialogSimpleDialog:new(moho)
 	self.selectMenu = msDialog:CreateSelectedLayerDropDownMenu(moho, "Selected Layers")
 	self.allMenu = msDialog:CreateLayerDropDownMenu(moho, "All Layers")
 	self.offsetStartFrame = msDialog:AddFloat("Offset Start Frame")
+	self.layerName = msDialog:AddTextBox("Layer Name")
     self.skipToStart = msDialog:AddCheckBox("Skip to Start Frame")
 
 	return self
@@ -67,6 +69,7 @@ function msDialogSimpleDialog:UpdateWidgets()
 	msDialog:SetMenuByLabel(self.allMenu,msDialogSimple.allLayer)
 
 	self.offsetStartFrame:SetValue(self.moho.frame)
+	self.layerName:SetValue(msDialogSimple.layerName)
 	self.skipToStart:SetValue(msDialogSimple.skipToStart)
 end
 
@@ -77,6 +80,7 @@ function msDialogSimpleDialog:OnOK()
 	msDialogSimple.allLayer = self.allMenu:FirstCheckedLabel()
 	msDialogSimple.boneLayer = self.boneMenu:FirstCheckedLabel()
 
+	msDialogSimple.layerName = self.layerName:Value()
 	msDialogSimple.offsetStartFrame = self.offsetStartFrame:FloatValue()
 	msDialogSimple.skipToStart = self.skipToStart:Value()
 end
