@@ -1,0 +1,13 @@
+enterIngressFrames 8
+enterOvershootScale 1.2000000476837
+enterResolveFrames 17
+exitFrames 5
+plopInIngressFrames 10
+plopInResolveFrames 15
+plopInScale 0.5
+plopOutFrames 30
+plopOutEndFrames 5
+plopOutBounceCount 2
+plopOutScale 0.5
+borderScale 1.6000000238419
+minScale 0.019999999552965
